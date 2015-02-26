@@ -1,57 +1,129 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using Vectrosity;
 
-public class Player : MonoBehaviour {
+// a Player class, extended from the base Character. Includes stamina/rest management,
+// click movement, inventory
+[RequireComponent(typeof(PlayerCamera), typeof(PlayerUI), typeof(Movement))]
+public class Player : Character {
 
-    public Mountain.Tile tileTarget;
-    public float speed;
-    public LineRenderer movementLine;
-    public string currentSide = "";
+    public Tile clickedOnTile;
 
-    private bool _moving;
-    private float _minDistanceToTile = 0.75f;
+    // stamina
+    public float defaultStaminaRefreshRate = 0.10f;
 
+    // player camera scripts
+    private PlayerUI _playerUI;
+    private PlayerCamera _playerCamera;
+
+    // packmule vars
+    private Vector3 _initialSpawnPosition;
+    public GameObject packmulePrefab;
+    public List<Packmule> currentPackmules = new List<Packmule>();
+    public int maxPackmules = 2;
+    public int packmulesWaiting;
+    public float packmuleResourceGatheringTime = 5.0f;
+    
     void Start()
     {
-        tileTarget = Mountain.Instance.GetStartPosition(currentSide);
+        _playerCamera = GetComponent<PlayerCamera>();
+        _playerUI = GetComponent<PlayerUI>();
+        _initialSpawnPosition = transform.position;
+        packmulesWaiting = maxPackmules;
+        // let the mountain generate before beginning
+        StartCoroutine(WaitForMountainAndGo());
+    }
+
+    IEnumerator WaitForMountainAndGo()
+    {
+        while (Mountain.Instance.mountainGenerationComplete)
+            yield return null;
+
+        Mountain.Instance.SetFaceVisibility(currentFace);
+        Tile initialTile = Mountain.Instance.GetStartPosition(currentFace);
+        movement._pathToTargetTile.Add(initialTile);
+        // set action to movement so we move to initial tile
+        actionToProcess = ActionType.movement;
     }
 
     void Update()
     {
-        if (tileTarget != null)
-        {
-            transform.position = Vector3.MoveTowards(transform.position, tileTarget.tileTransform.position, speed);
-            if (Vector3.Distance(transform.position, tileTarget.tileTransform.position) < _minDistanceToTile && _moving)
-            {
-                Mountain.Instance.ArrivedAtTile(this, tileTarget);
-                _moving = false;
-            }
-            else
-                _moving = true;
+        // remember to call the base class update
+        base.Update();
 
-            // show line where player is moving
-            if (_moving)
-            {
-                if (!movementLine.gameObject.activeSelf)
-                    movementLine.gameObject.SetActive(true);
-                movementLine.SetPosition(0, transform.position);
-                movementLine.SetPosition(1, tileTarget.tileTransform.position);
-            }
-            else
-            {
-                if (movementLine.gameObject.activeSelf)
-                    movementLine.gameObject.SetActive(false);
-            }
-        }
+        _playerUI.restBar.value = (_turnTimer * 1000) / restInMilliseconds;
+        _playerUI.staminaBar.value += Time.deltaTime * GetCurrentStaminaRefreshRate();
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            bool leftClick = Input.GetMouseButtonDown(0);
+
+            Ray ray = _playerCamera.playerMainCamera.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit))
             {
-                tileTarget = Mountain.Instance.GetClosestTile(currentSide, hit.point);
+                if (hit.collider.tag == "ItemShop" && leftClick)
+                    _playerUI.ShopClicked();
+                else
+                {
+                    clickedOnTile = Mountain.Instance.GetClosestTile(currentFace, hit.point);
+
+                    if (leftClick)
+                    {
+                        if (clickedOnTile == closestTile)
+                            return;
+
+                        // pass to the movement script
+                        movement.ClickedOnTile(clickedOnTile);
+                    }
+                    else // rightClick
+                    {
+                        // send a packmule to the tile if we have one available
+                        if (packmulesWaiting > 0)
+                        {
+                            List<Tile> pathFound = Mountain.Instance.GetPathBetweenTiles(currentFace, Mountain.Instance.GetStartPosition(currentFace), clickedOnTile);
+                            if (pathFound != null)
+                                SpawnPackmule();
+                        }
+                    }
+                }
             }
         }
+
+    }
+
+    public void ChangeFaceFocus(int toRotate)
+    {
+        _playerCamera.ChangeFaceFocus(toRotate);
+    }
+
+    void SpawnPackmule()
+    {
+        packmulesWaiting--;
+        GameObject mule = (GameObject)Instantiate(packmulePrefab, _initialSpawnPosition, Quaternion.identity);
+        Packmule packmule = mule.GetComponent<Packmule>();
+        packmule.currentFace = this.currentFace;
+        packmule.closestTile = null;
+        packmule.SetMuleType(this, clickedOnTile, clickedOnTile.revealed ? Packmule.MuleType.Null : Packmule.MuleType.Explorer);
+        packmule.movement.ClickedOnTile(clickedOnTile);
+        currentPackmules.Add(packmule);
+    }
+
+    public void ToggleChangeFaceArrow(int direction, bool show)
+    {
+        if (direction == Mountain.RIGHT)
+            _playerUI.changeFaceRightButton.SetActive(show);
+        else if (direction == Mountain.LEFT)
+            _playerUI.changeFaceLeftButton.SetActive(show);
+    }
+
+    float GetCurrentStaminaRefreshRate()
+    {
+        if (movement.isMoving)
+            return defaultStaminaRefreshRate * 0.25f;
+
+        // if none of the above conditions are true we just retrun default value
+        return defaultStaminaRefreshRate;
     }
 }
