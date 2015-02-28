@@ -17,6 +17,9 @@ public class Player : Character {
     private PlayerUI _playerUI;
     private PlayerCamera _playerCamera;
 
+    // player inventory script
+    private Inventory _inventory;
+
     // packmule vars
     private Vector3 _initialSpawnPosition;
     public GameObject packmulePrefab;
@@ -24,11 +27,13 @@ public class Player : Character {
     public int maxPackmules = 2;
     public int packmulesWaiting;
     public float packmuleResourceGatheringTime = 5.0f;
+
     
     void Start()
     {
         _playerCamera = GetComponent<PlayerCamera>();
         _playerUI = GetComponent<PlayerUI>();
+        _inventory = GetComponent<Inventory>();
         _initialSpawnPosition = transform.position;
         packmulesWaiting = maxPackmules;
         // let the mountain generate before beginning
@@ -41,10 +46,8 @@ public class Player : Character {
             yield return null;
 
         Mountain.Instance.SetFaceVisibility(currentFace);
-        Tile initialTile = Mountain.Instance.GetStartPosition(currentFace);
-        movement._pathToTargetTile.Add(initialTile);
-        // set action to movement so we move to initial tile
-        actionToProcess = ActionType.movement;
+        closestTile = Mountain.Instance.GetHomeBaseTile(Mountain.Instance.faces[currentFace]);
+        movement.ClickedOnTile(Mountain.Instance.GetStartPositionTile(Mountain.Instance.faces[currentFace]));
     }
 
     void Update()
@@ -52,8 +55,12 @@ public class Player : Character {
         // remember to call the base class update
         base.Update();
 
+        // stamina / rest updates
         _playerUI.restBar.value = (_turnTimer * 1000) / restInMilliseconds;
         _playerUI.staminaBar.value += Time.deltaTime * GetCurrentStaminaRefreshRate();
+
+        // current cash updates
+        _playerUI.currentCashLabel.text = _inventory.currentCash.ToString();
 
         if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
         {
@@ -67,6 +74,10 @@ public class Player : Character {
                     _playerUI.ShopClicked();
                 else
                 {
+                    // don't accept movement clicks when shop is open
+                    if (_playerUI.shop.gameObject.activeSelf)
+                        return;
+
                     clickedOnTile = Mountain.Instance.GetClosestTile(currentFace, hit.point);
 
                     if (leftClick)
@@ -82,7 +93,7 @@ public class Player : Character {
                         // send a packmule to the tile if we have one available
                         if (packmulesWaiting > 0)
                         {
-                            List<Tile> pathFound = Mountain.Instance.GetPathBetweenTiles(currentFace, Mountain.Instance.GetStartPosition(currentFace), clickedOnTile);
+                            List<Tile> pathFound = Mountain.Instance.GetPathBetweenTiles(currentFace, Mountain.Instance.GetStartPositionTile(Mountain.Instance.faces[currentFace]), clickedOnTile);
                             if (pathFound != null)
                                 SpawnPackmule();
                         }

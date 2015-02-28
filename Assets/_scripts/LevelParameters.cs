@@ -56,6 +56,17 @@ public class LevelParameters : MonoBehaviour {
     /// </summary>
     public int numPathsBetweenOneFaceAndAnother = 2;
 
+    /// <summary>
+    /// the distance at which a tile will be revealed
+    /// </summary>
     public float minDistanceToRevealTile = 0.75f;
+    /// <summary>
+    /// the distance at whice a tile will be considered closest to the character
+    /// </summary>
     public float distanceToBeConsideredClosest = 1.10f;
+
+    /// <summary>
+    /// the amount of cash a character starts the game with
+    /// </summary>
+    public int startingCash = 50;
 }

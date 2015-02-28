@@ -69,16 +69,34 @@ public class Tile {
     {
         int level = 0;
         char levelString = tileTransform.name[0];
-        int.TryParse(levelString.ToString(), out level);
-        y = level;
+        // special case bottom tile
+        if (levelString == '-')
+        {
+            y = -1;
+            revealed = true;
+        }
+        else
+        {
+            int.TryParse(levelString.ToString(), out level);
+            y = level;
+        }
     }
 
     private void SetTileHorizontalPosition()
     {
         int horizPos = 0;
         char posString = tileTransform.name[tileTransform.name.Length - 1];
-        int.TryParse(posString.ToString(), out horizPos);
-        x = horizPos;
+        // special case bottom tile
+        if (posString == '-')
+        {
+            x = -1;
+            revealed = true;
+        }
+        else
+        {
+            int.TryParse(posString.ToString(), out horizPos);
+            x = horizPos;
+        }
     }
 
     public void DisplayPaths(bool reveal, int selectedPathOnly = 99)

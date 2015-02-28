@@ -10,6 +10,9 @@ public class Mountain : MonoBehaviour {
     public const int RIGHT = 3;
     public const int BOTTOM_LEFT = 4;
     public const int BOTTOM_RIGHT = 5;
+    // shoehorned in paths between top and bottom tiles
+    public const int TOP = 6;
+    public const int BOTTOM = 7;
 
     public static Mountain Instance;
     /// <summary>
@@ -63,8 +66,8 @@ public class Mountain : MonoBehaviour {
 
         foreach (string faceKey in faces.Keys)
         {
-            GetStartPosition(faceKey).ForceProperty(Tile.TileProperty.empty);
-            CheckPathsFromStartTile(faceKey, GetStartPosition(faceKey));
+            GetStartPositionTile(faces[faceKey]).ForceProperty(Tile.TileProperty.empty);
+            CheckPathsFromStartTile(faceKey, GetStartPositionTile(faces[faceKey]));
         }
 
         yield return new WaitForEndOfFrame();
@@ -212,10 +215,10 @@ public class Mountain : MonoBehaviour {
         endTile.openPaths[GetOpposingDirection(directionFromStart)] = 1;
     }
 
-    public Tile GetStartPosition(string side)
+    public Tile GetStartPositionTile(List<Tile> faceTiles)
     {
         int middleTileInt = (int)GetNumTilesOnLevel(0) / 2;
-        foreach (Tile tile in faces[side])
+        foreach (Tile tile in faceTiles)
         {
             if (tile.x == middleTileInt)
                 return tile;
@@ -236,7 +239,7 @@ public class Mountain : MonoBehaviour {
         if (startTile == null)
         {
             addStartTile = true;
-            startTile = GetStartPosition(face);
+            startTile = GetStartPositionTile(faces[face]);
         }
 
         int startX = endTile.x;
@@ -321,8 +324,14 @@ public class Mountain : MonoBehaviour {
 
     public List<Tile> GetConnectedTiles(List<Tile> tilesOnFace, Tile tile, List<Tile> excludedTiles = null)
     {
-        //int foundTiles = 0;
         List<Tile> foundTiles = new List<Tile>();
+
+        // special case for bottom tile
+        if (tile == GetHomeBaseTile(tilesOnFace))
+        {
+            foundTiles.Add(GetStartPositionTile(tilesOnFace));
+            return foundTiles;
+        }
 
         for (int i = TOP_LEFT; i <= BOTTOM_RIGHT; i++)
         {
@@ -334,7 +343,25 @@ public class Mountain : MonoBehaviour {
                     foundTiles.Add(neighbour);
             }
         }
+
+        // another special case for bottom tile
+        if (tile == GetStartPositionTile(tilesOnFace))
+        {
+            Tile homeBaseTile = GetHomeBaseTile(tilesOnFace);
+            if (homeBaseTile != null)
+                foundTiles.Add(homeBaseTile);
+        }
+
         return foundTiles;
+    }
+
+    public Tile GetHomeBaseTile(List<Tile> fromList)
+    {
+        foreach (Tile tile in fromList)
+            if (tile.x == -1)
+                return tile;
+
+        return null;
     }
 
     bool IsTileConnectedToRevealedTile(List<Tile> tilesOnFace, Tile hiddenTile)
@@ -658,6 +685,9 @@ public class Mountain : MonoBehaviour {
     {
         int level = tile.y;
         int pos = tile.x;
+
+        if (level == -1 || pos == -1)
+            return;
 
         List<Tile> tilesOnFace = faces[faceKey];
 

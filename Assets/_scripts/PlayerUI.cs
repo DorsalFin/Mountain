@@ -12,6 +12,7 @@ public class PlayerUI : MonoBehaviour {
     public GameObject changeFaceRightButton;
 
     public Shop shop;
+    public UILabel currentCashLabel;
 
     public void ShopClicked()
     {

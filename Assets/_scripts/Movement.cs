@@ -100,12 +100,15 @@ public class Movement : MonoBehaviour {
         {
             if (_generatingPath)
             {
-                if (character.closestTile != _upcomingPathToTargetTile[0] && character.closestTile.face == _upcomingPathToTargetTile[0].face)
+                if (character.closestTile != null && character.closestTile != _upcomingPathToTargetTile[0] && character.closestTile.face == _upcomingPathToTargetTile[0].face)
                 {
                     Player player = character as Player;
-                    List<Tile> path = Mountain.Instance.GetPathBetweenTiles(character.currentFace, character.closestTile, player.clickedOnTile);
-                    if (path != null)
-                        _upcomingPathToTargetTile = path;
+                    if (player.clickedOnTile != null)
+                    {
+                        List<Tile> path = Mountain.Instance.GetPathBetweenTiles(character.currentFace, character.closestTile, player.clickedOnTile);
+                        if (path != null)
+                            _upcomingPathToTargetTile = path;
+                    }
                 }
             }
         }
@@ -115,7 +118,7 @@ public class Movement : MonoBehaviour {
     {
         _pathToTargetTile.RemoveAt(0);
         if (_pathToTargetTile.Count > 0)
-            character.actionToProcess = Player.ActionType.movement;
+            character.actionToProcess = Character.ActionType.movement;
         else
         {
             // destination reached
@@ -134,7 +137,7 @@ public class Movement : MonoBehaviour {
         {
             _upcomingPathToTargetTile = path;
             _generatingPath = true;
-            character.actionToProcess = Player.ActionType.movement;
+            character.actionToProcess = Character.ActionType.movement;
         }
     }
 
@@ -149,6 +152,6 @@ public class Movement : MonoBehaviour {
         //_upcomingPathToTargetTile.Add(closestTile);
         _upcomingPathToTargetTile.Add(correspondingTile);
         _generatingPath = true;
-        character.actionToProcess = Player.ActionType.movement;
+        character.actionToProcess = Character.ActionType.movement;
     }
 }

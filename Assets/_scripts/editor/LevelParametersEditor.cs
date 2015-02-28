@@ -14,6 +14,7 @@ public class LevelParametersEditor : Editor {
         myTarget.extraProbabilityOfJoinedTiles = EditorGUILayout.Slider("Extra probability of linked tiles", myTarget.extraProbabilityOfJoinedTiles, 0, 100);
         myTarget.guaranteedPathsFromFirstTile = EditorGUILayout.IntField("Guaranteed paths from first tile", myTarget.guaranteedPathsFromFirstTile);
         myTarget.numPathsBetweenOneFaceAndAnother = EditorGUILayout.IntSlider("Number of paths connecting faces", myTarget.numPathsBetweenOneFaceAndAnother, 0, 3);
+        myTarget.startingCash = EditorGUILayout.IntField("Starting cash", myTarget.startingCash);
     }
 	
 }

@@ -78,17 +78,20 @@ public class Packmule : Character {
         }
 
         if (homeThisTurn)
-        {
-            _owner.currentPackmules.Remove(this);
-            _owner.packmulesWaiting++;
-            Destroy(gameObject);
-        }
+            FinishedJourney();
     }
 
     public void ReturnHome()
     {
         _returningHome = true;
-        movement.ClickedOnTile(Mountain.Instance.GetStartPosition(currentFace));
+        movement.ClickedOnTile(Mountain.Instance.GetHomeBaseTile(Mountain.Instance.faces[currentFace]));
+    }
+
+    void FinishedJourney()
+    {
+        _owner.currentPackmules.Remove(this);
+        _owner.packmulesWaiting++;
+        Destroy(gameObject);
     }
 
 }
