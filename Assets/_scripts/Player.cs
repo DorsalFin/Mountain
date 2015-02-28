@@ -104,6 +104,11 @@ public class Player : Character {
 
     }
 
+    public void DepositCash(int amount)
+    {
+        _inventory.currentCash += amount;
+    }
+
     public void ChangeFaceFocus(int toRotate)
     {
         _playerCamera.ChangeFaceFocus(toRotate);

@@ -15,6 +15,8 @@ public class LevelParametersEditor : Editor {
         myTarget.guaranteedPathsFromFirstTile = EditorGUILayout.IntField("Guaranteed paths from first tile", myTarget.guaranteedPathsFromFirstTile);
         myTarget.numPathsBetweenOneFaceAndAnother = EditorGUILayout.IntSlider("Number of paths connecting faces", myTarget.numPathsBetweenOneFaceAndAnother, 0, 3);
         myTarget.startingCash = EditorGUILayout.IntField("Starting cash", myTarget.startingCash);
+        myTarget.initialMineralYield = EditorGUILayout.IntField("Initial mineral amount on mineral tiles", myTarget.initialMineralYield);
+        myTarget.percentageMineralsDrainedEachHarvest = EditorGUILayout.IntSlider("Percentage of minerals drained each harvest", myTarget.percentageMineralsDrainedEachHarvest, 0, 100);
     }
 	
 }

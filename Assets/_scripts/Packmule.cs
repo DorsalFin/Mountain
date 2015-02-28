@@ -23,7 +23,8 @@ public class Packmule : Character {
     // various speed and efficiency packmules vars, taken from the player
     private float _resourceGatheringTime;
     private bool _gathering;
-
+    public int _currentMinerals;
+    private int _totalMineralsThisMine;
     private float _timer;
 
     void Update()
@@ -34,6 +35,11 @@ public class Packmule : Character {
         if (_gathering)
         {
             _timer += Time.deltaTime;
+
+            int previous = _currentMinerals;
+            float tParam = Mathf.InverseLerp(0, _resourceGatheringTime, _timer);
+            _currentMinerals = Mathf.RoundToInt(tParam * (float)_totalMineralsThisMine);
+            closestTile.MineTile(_currentMinerals - previous);
 
             if (_timer > _resourceGatheringTime)
             {
@@ -69,6 +75,7 @@ public class Packmule : Character {
             {
                 case MuleType.ResourceGatherer:
                     _timer = 0;
+                    _totalMineralsThisMine = closestTile.GetMineAmount();
                     _gathering = true;
                     break;
                 case MuleType.Explorer:
@@ -91,6 +98,8 @@ public class Packmule : Character {
     {
         _owner.currentPackmules.Remove(this);
         _owner.packmulesWaiting++;
+        if (muleType == MuleType.ResourceGatherer)
+            _owner.DepositCash(_currentMinerals);
         Destroy(gameObject);
     }
 

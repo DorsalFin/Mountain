@@ -69,4 +69,15 @@ public class LevelParameters : MonoBehaviour {
     /// the amount of cash a character starts the game with
     /// </summary>
     public int startingCash = 50;
+
+    /// <summary>
+    /// the amount of minerals a freshly spawned mineral tile holds
+    /// </summary>
+    public int initialMineralYield = 60;
+
+    /// <summary>
+    /// this percentage of minerals is gathered by a mule each time they harvest a mineral
+    /// tile and walk it back to base
+    /// </summary>
+    public int percentageMineralsDrainedEachHarvest = 40;
 }

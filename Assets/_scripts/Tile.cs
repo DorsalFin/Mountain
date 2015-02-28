@@ -19,6 +19,7 @@ public class Tile {
     public int x;
     public int y;
     public string face;
+    public int currentYield;
 
     public int[] openPaths = new int[]  { 0, 0,
                                          0,   0,
@@ -47,6 +48,20 @@ public class Tile {
             openPaths = this.openPaths,
             face = this.face
         };
+    }
+
+    public int GetMineAmount()
+    {
+        float amountFloat = ((float)currentYield / 100) * LevelParameters.Instance.percentageMineralsDrainedEachHarvest;
+        int amountInt = Mathf.RoundToInt(amountFloat);
+        return amountInt;
+    }
+
+    public void MineTile(int amount)
+    {
+        currentYield -= amount;
+
+        // TODO: update some kind of mineral graphic
     }
 
     public void ForceProperty(TileProperty tileProperty)

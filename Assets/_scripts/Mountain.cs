@@ -74,11 +74,24 @@ public class Mountain : MonoBehaviour {
 
         OpenPathsBetweenFaces();
         CloseAllUnReachableDirections();
+        SetInitialTileMineralYields();
 
         yield return new WaitForEndOfFrame();
 
         SetAllTilesDisplayedState(false);
         mountainGenerationComplete = true;
+    }
+
+    void SetInitialTileMineralYields()
+    {
+        foreach (string faceKey in faces.Keys)
+        {
+            foreach (Tile tile in faces[faceKey])
+            {
+                if (tile.property == Tile.TileProperty.minerals)
+                    tile.currentYield = LevelParameters.Instance.initialMineralYield;
+            }
+        }
     }
 
     void CloseAllUnReachableDirections()
@@ -91,6 +104,8 @@ public class Mountain : MonoBehaviour {
                     tile.openPaths[TOP_LEFT] = 0;
                 if (tile.x == GetNumTilesOnLevel(tile.y))
                     tile.openPaths[TOP_RIGHT] = 0;
+                if (tile.x == -1 || tile.x == 99)
+                    tile.openPaths = new int[] { 0, 0, 0, 0, 0, 0 };
             }
         }
     }
