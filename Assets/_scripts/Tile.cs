@@ -36,6 +36,10 @@ public class Tile {
         this.face = tileTransform.parent.name;
     }
 
+    /// <summary>
+    /// deep copy is for pathfinding without changing variables on the main tiles
+    /// </summary>
+    /// <returns></returns>
     public Tile DeepCopy()
     {
         return new Tile

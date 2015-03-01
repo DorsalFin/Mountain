@@ -40,6 +40,14 @@ public class Player : Character {
         StartCoroutine(WaitForMountainAndGo());
     }
 
+    public override bool ShouldDisplayPaths()
+    {
+        if (_playerUI.shop.gameObject.activeSelf)
+            return false;
+
+        return true;
+    }
+
     IEnumerator WaitForMountainAndGo()
     {
         while (Mountain.Instance.mountainGenerationComplete)

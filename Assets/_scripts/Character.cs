@@ -27,6 +27,8 @@ public class Character : MonoBehaviour {
     // current action
     public ActionType actionToProcess;
 
+    public virtual bool ShouldDisplayPaths() { return true; }
+
     public void Update()
     {
 #region TURN_COUNTER

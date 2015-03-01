@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Vectrosity;
 
 [RequireComponent(typeof(Player))]
 public class PlayerUI : MonoBehaviour {
@@ -17,5 +18,6 @@ public class PlayerUI : MonoBehaviour {
     public void ShopClicked()
     {
         shop.gameObject.SetActive(!shop.gameObject.activeSelf);
+        VectorLine.canvas.gameObject.SetActive(!shop.gameObject.activeSelf);
     }
 }

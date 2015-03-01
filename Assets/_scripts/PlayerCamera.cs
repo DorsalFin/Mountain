@@ -4,6 +4,7 @@ using System.Collections;
 public class PlayerCamera : MonoBehaviour {
 
     public Camera playerMainCamera;
+    public Camera playerVectorLineCamera;
     public float targetFaceAngle;
     public float rotationSpeed = 20.0f;
 

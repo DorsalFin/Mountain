@@ -18,8 +18,10 @@ public class Movement : MonoBehaviour {
 
     void Start()
     {
-        _pathLine = new VectorLine("pathLine", new List<Vector3>(), pathLineMaterial, 10.0f, LineType.Continuous, Joins.Fill);
-        _pathLine.textureScale = 1.0f;
+        //selectionLine = new VectorLine("Selection", new Vector2[5], lineMaterial, 4.0, LineType.Continuous, Joins.Fill);
+        //selectionLine.textureScale = textureScale;
+        _pathLine = new VectorLine("pathLine", new List<Vector3>(), pathLineMaterial, 6.0f, LineType.Continuous, Joins.Fill);
+        _pathLine.textureScale = 2.0f;
     }
 
     public void ActionMovement()
@@ -52,12 +54,21 @@ public class Movement : MonoBehaviour {
                 foreach (Tile t in _pathToTargetTile)
                     pathlinePoints.Add(t.tileTransform.position);
             }
-            _pathLine.points3.Clear();
-            _pathLine.points3.AddRange(pathlinePoints);
-            //_pathLine.endCap = "endCap";
-            _pathLine.Draw();
-            if (!_pathLine.active)
-                _pathLine.active = true;
+
+            if (character.ShouldDisplayPaths() == true)
+            {
+                _pathLine.points3.Clear();
+                _pathLine.points3.AddRange(pathlinePoints);
+                //_pathLine.endCap = "endCap";
+                _pathLine.Draw();
+                if (!_pathLine.active)
+                    _pathLine.active = true;
+            }
+            else
+            {
+                if (_pathLine.active)
+                    _pathLine.active = false;
+            }
 
             if (isMoving)
             {

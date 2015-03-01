@@ -44,9 +44,15 @@ public class Packmule : Character {
             if (_timer > _resourceGatheringTime)
             {
                 _gathering = false;
+                closestTile.propertyObject.GetComponent<ColliderDisplayText>().ToggleMiningState(false);
                 ReturnHome();
             }
         }
+    }
+
+    public override bool ShouldDisplayPaths()
+    {
+        return _owner.ShouldDisplayPaths();
     }
 
     public void SetMuleType(Player owner, Tile tileGoal, MuleType forcedType = MuleType.Null)
@@ -77,6 +83,7 @@ public class Packmule : Character {
                     _timer = 0;
                     _totalMineralsThisMine = closestTile.GetMineAmount();
                     _gathering = true;
+                    closestTile.propertyObject.GetComponent<ColliderDisplayText>().ToggleMiningState(true);
                     break;
                 case MuleType.Explorer:
                     ReturnHome();

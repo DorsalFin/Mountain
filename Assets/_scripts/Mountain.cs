@@ -570,6 +570,7 @@ public class Mountain : MonoBehaviour {
         {
             case Tile.TileProperty.minerals:
                 tile.propertyObject = (GameObject)Instantiate(mineralPrefab, tile.tileTransform.position + tilePropertyOffset, mineralPrefab.transform.rotation);
+                tile.propertyObject.GetComponent<ColliderDisplayText>().myType = tile;
                 break;
             case Tile.TileProperty.monsters:
                 tile.propertyObject = (GameObject)Instantiate(monsterPrefab, tile.tileTransform.position + tilePropertyOffset, monsterPrefab.transform.rotation);
