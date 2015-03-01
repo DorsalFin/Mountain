@@ -5,33 +5,6 @@ using System.IO;
 
 public class ItemManager : MonoBehaviour {
 
-    [System.Serializable]
-	public class Item
-    {
-        public string itemName;
-        public float itemPrice;
-    }
-
-    public class Weapon : Item
-    {
-        public float damage;
-        public float attackSpeed;
-        public float hitChance;
-    }
-
-    public class Armour : Item
-    {
-        public float damageReduction;
-        public float blockChance;
-        public float weight;
-    }
-
-    //public enum ItemType
-    //{
-    //    Weapon = 1,
-    //    Armour = 2
-    //}
-
     public static ItemManager Instance;
 
     void Awake()
@@ -59,7 +32,7 @@ public class ItemManager : MonoBehaviour {
             for (int i = 0; i < txtNodes.Length; i++)
             {
                 if (i == 0) weapon.itemName = txtNodes[i];
-                else if (i == 1) float.TryParse(txtNodes[i], out weapon.itemPrice);
+                else if (i == 1) int.TryParse(txtNodes[i], out weapon.itemPrice);
                 else if (i == 2) float.TryParse(txtNodes[i], out weapon.attackSpeed);
                 else if (i == 3) float.TryParse(txtNodes[i], out weapon.damage);
                 else if (i == 4) float.TryParse(txtNodes[i], out weapon.hitChance);
@@ -81,7 +54,7 @@ public class ItemManager : MonoBehaviour {
             for (int i = 0; i < txtNodes.Length; i++)
             {
                 if (i == 0) armour.itemName = txtNodes[i];
-                else if (i == 1) float.TryParse(txtNodes[i], out armour.itemPrice);
+                else if (i == 1) int.TryParse(txtNodes[i], out armour.itemPrice);
                 else if (i == 2) float.TryParse(txtNodes[i], out armour.damageReduction);
                 else if (i == 3) float.TryParse(txtNodes[i], out armour.blockChance);
                 else if (i == 4) float.TryParse(txtNodes[i], out armour.weight);
@@ -89,5 +62,48 @@ public class ItemManager : MonoBehaviour {
             availableArmour.Add(armour);
         }
         reader.Close();
+    }
+
+    public void RemoveItem(Item item)
+    {
+        List<Item> itemParentList = item is Weapon ? availableWeapons : (item is Armour ? availableArmour : null);
+        foreach (Item i in itemParentList)
+        {
+            if (i == item)
+            {
+                itemParentList.Remove(item);
+                break;
+            }
+        }
+    }
+
+    public Item GetItemByName(string itemName)
+    {
+        Item itemFound = null;
+        foreach (Item i in availableArmour)
+        {
+            if (i.itemName == itemName)
+            {
+                itemFound = i;
+                break;
+            }
+        }
+        if (itemFound == null)
+        {
+            foreach (Item i in availableWeapons)
+            {
+                if (i.itemName == itemName)
+                {
+                    itemFound = i;
+                    break;
+                }
+            }
+        }
+        return itemFound;
+    }
+
+    public void PurchaseItem(Player player, Item item)
+    {
+
     }
 }

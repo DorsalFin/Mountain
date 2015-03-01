@@ -28,7 +28,7 @@ public class Tile {
     public Tile() { }
     public Tile(Transform tileTransform)
     {
-        this.tileTransform = tileTransform;
+        this.tileTransform = tileTransform.Find("tileTransform").transform;
         sprite = tileTransform.GetComponent<SpriteRenderer>();
         SetTileHorizontalPosition();
         SetTileLevel();
@@ -87,7 +87,7 @@ public class Tile {
     private void SetTileLevel()
     {
         int level = 0;
-        char levelString = tileTransform.name[0];
+        char levelString = tileTransform.parent.name[0];
         // special case bottom tile
         if (levelString == '-')
         {
@@ -104,7 +104,7 @@ public class Tile {
     private void SetTileHorizontalPosition()
     {
         int horizPos = 0;
-        char posString = tileTransform.name[tileTransform.name.Length - 1];
+        char posString = tileTransform.parent.name[tileTransform.parent.name.Length - 1];
         // special case bottom tile
         if (posString == '-')
         {
@@ -123,17 +123,17 @@ public class Tile {
         for (int i = 0; i < openPaths.Length; i++)
         {
             if (i == Mountain.TOP_LEFT && (selectedPathOnly == 99 || selectedPathOnly == Mountain.TOP_LEFT))
-                tileTransform.Find("top_left").gameObject.SetActive(openPaths[i] == 1 && reveal);
+                tileTransform.parent.Find("top_left").gameObject.SetActive(openPaths[i] == 1 && reveal);
             else if (i == Mountain.TOP_RIGHT && (selectedPathOnly == 99 || selectedPathOnly == Mountain.TOP_RIGHT))
-                tileTransform.Find("top_right").gameObject.SetActive(openPaths[i] == 1 && reveal);
+                tileTransform.parent.Find("top_right").gameObject.SetActive(openPaths[i] == 1 && reveal);
             else if (i == Mountain.LEFT && (selectedPathOnly == 99 || selectedPathOnly == Mountain.LEFT))
-                tileTransform.Find("left").gameObject.SetActive(openPaths[i] == 1 && reveal);
+                tileTransform.parent.Find("left").gameObject.SetActive(openPaths[i] == 1 && reveal);
             else if (i == Mountain.RIGHT && (selectedPathOnly == 99 || selectedPathOnly == Mountain.RIGHT))
-                tileTransform.Find("right").gameObject.SetActive(openPaths[i] == 1 && reveal);
+                tileTransform.parent.Find("right").gameObject.SetActive(openPaths[i] == 1 && reveal);
             else if (i == Mountain.BOTTOM_LEFT && (selectedPathOnly == 99 || selectedPathOnly == Mountain.BOTTOM_LEFT))
-                tileTransform.Find("bottom_left").gameObject.SetActive(openPaths[i] == 1 && reveal);
+                tileTransform.parent.Find("bottom_left").gameObject.SetActive(openPaths[i] == 1 && reveal);
             else if (i == Mountain.BOTTOM_RIGHT && (selectedPathOnly == 99 || selectedPathOnly == Mountain.BOTTOM_RIGHT))
-                tileTransform.Find("bottom_right").gameObject.SetActive(openPaths[i] == 1 && reveal);
+                tileTransform.parent.Find("bottom_right").gameObject.SetActive(openPaths[i] == 1 && reveal);
         }
     }
 

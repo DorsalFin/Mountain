@@ -21,7 +21,7 @@ public class ColliderDisplayText : MonoBehaviour
 	HUDText mText = null;
 	bool mHover = false;
 
-    private bool _isMining;
+    private bool _forcedOn;
 
 	// Use this for initialization
 	void Start ()
@@ -40,6 +40,8 @@ public class ColliderDisplayText : MonoBehaviour
 		child.AddComponent<UIFollowTarget>().target = target;
 	}
 
+
+
 	void OnHover (bool isOver)
 	{
 		if (mText != null && isOver && !mHover)
@@ -50,31 +52,33 @@ public class ColliderDisplayText : MonoBehaviour
 		}
 		else if (!isOver)
 		{
-            if (!_isMining)
+            if (!_forcedOn)
             {
                 if (mText.isVisible)
-                    mText.Clear();
+                    mText.Clear(0);
             }
 			mHover = false;
 		}
 	}
 
+
+
     /// <summary>
-    /// this is for resource nodes tooltip to appear while a mule is mining them
+    /// if you want to force the tooltip to be displayed until switched off use this method
     /// </summary>
-    public void ToggleMiningState(bool isMining)
+    public void ToggleForcedState(bool show)
     {
-        if (isMining)
+        if (show)
         {
-            _isMining = true;
+            _forcedOn = true;
             if (!mText.isVisible)
                 mText.Add(myType, textColour, 0f);
         }
-        else if (isMining == false)
+        else if (show == false)
         {
-            _isMining = false;
+            _forcedOn = false;
             if (mText.isVisible && !mHover)
-                mText.Clear();
+                mText.Clear(1.0f);
         }
     }
 }

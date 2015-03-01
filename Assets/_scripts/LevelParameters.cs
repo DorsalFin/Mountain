@@ -81,4 +81,10 @@ public class LevelParameters : MonoBehaviour {
     /// tile and walk it back to base
     /// </summary>
     public int percentageMineralsDrainedEachHarvest = 40;
+
+    /// <summary>
+    /// whether there will be multiple copies of every item... having this 'false' means everyone
+    /// can buy the same items versus each player having unique items
+    /// </summary>
+    public bool oneCopyOfEachItem = true;
 }

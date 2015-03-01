@@ -216,12 +216,14 @@ public class HUDText : MonoBehaviour
 		Add(Localization.Get(text), c, stayDuration);
 	}
 
-    public void Clear()
+    public void Clear(float extraTime)
     {
         if (!enabled) return;
 
         Entry ent = mList[mList.Count-1];
-        ent.stay = 0;
+        if (extraTime != 0)
+            ent.time = Time.realtimeSinceStartup;
+        ent.stay = extraTime;
     }
 
 	/// <summary>

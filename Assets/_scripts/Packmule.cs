@@ -44,7 +44,7 @@ public class Packmule : Character {
             if (_timer > _resourceGatheringTime)
             {
                 _gathering = false;
-                closestTile.propertyObject.GetComponent<ColliderDisplayText>().ToggleMiningState(false);
+                closestTile.propertyObject.GetComponent<ColliderDisplayText>().ToggleForcedState(false);
                 ReturnHome();
             }
         }
@@ -83,7 +83,7 @@ public class Packmule : Character {
                     _timer = 0;
                     _totalMineralsThisMine = closestTile.GetMineAmount();
                     _gathering = true;
-                    closestTile.propertyObject.GetComponent<ColliderDisplayText>().ToggleMiningState(true);
+                    closestTile.propertyObject.GetComponent<ColliderDisplayText>().ToggleForcedState(true);
                     break;
                 case MuleType.Explorer:
                     ReturnHome();

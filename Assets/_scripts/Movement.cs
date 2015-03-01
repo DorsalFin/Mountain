@@ -55,20 +55,12 @@ public class Movement : MonoBehaviour {
                     pathlinePoints.Add(t.tileTransform.position);
             }
 
-            if (character.ShouldDisplayPaths() == true)
-            {
-                _pathLine.points3.Clear();
-                _pathLine.points3.AddRange(pathlinePoints);
-                //_pathLine.endCap = "endCap";
-                _pathLine.Draw();
-                if (!_pathLine.active)
-                    _pathLine.active = true;
-            }
-            else
-            {
-                if (_pathLine.active)
-                    _pathLine.active = false;
-            }
+            _pathLine.points3.Clear();
+            _pathLine.points3.AddRange(pathlinePoints);
+            //_pathLine.endCap = "endCap";
+            _pathLine.Draw3D();
+            if (!_pathLine.active)
+                _pathLine.active = true;
 
             if (isMoving)
             {

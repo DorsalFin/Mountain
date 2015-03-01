@@ -19,6 +19,7 @@ public class Player : Character {
 
     // player inventory script
     private Inventory _inventory;
+    public Inventory GetInventory { get { return _inventory; } }
 
     // packmule vars
     private Vector3 _initialSpawnPosition;
@@ -27,7 +28,6 @@ public class Player : Character {
     public int maxPackmules = 2;
     public int packmulesWaiting;
     public float packmuleResourceGatheringTime = 5.0f;
-
     
     void Start()
     {
@@ -38,6 +38,8 @@ public class Player : Character {
         packmulesWaiting = maxPackmules;
         // let the mountain generate before beginning
         StartCoroutine(WaitForMountainAndGo());
+
+        VectorLine.canvas3D.gameObject.layer = LayerMask.NameToLayer("VectorLines");
     }
 
     public override bool ShouldDisplayPaths()
