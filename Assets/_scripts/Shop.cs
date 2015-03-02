@@ -9,6 +9,8 @@ public class Shop : MonoBehaviour {
     public GameObject shopItemPrefab;
     private string _currentlyDisplayingCategory;
 
+    private List<GameObject> _currentDisplayedItems = new List<GameObject>();
+
     public Player player;
 
     public void DisplayItems(string category)
@@ -16,6 +18,7 @@ public class Shop : MonoBehaviour {
         // clear existing items in shop grid first
         foreach (Transform oldItem in itemGrid.transform)
             Destroy(oldItem.gameObject);
+        _currentDisplayedItems.Clear();
 
         _currentlyDisplayingCategory = category;
 
@@ -29,17 +32,26 @@ public class Shop : MonoBehaviour {
         // fill the item prefabs into the shop
         foreach (Item item in newItems)
         {
-            GameObject i = (GameObject)Instantiate(shopItemPrefab, Vector3.zero, Quaternion.identity);
-            i.name = item.itemName;
-            i.transform.Find("name_label").GetComponent<UILabel>().text = item.itemName;
-            i.transform.Find("price_label").GetComponent<UILabel>().text = "$" +item.itemPrice.ToString();
-            i.transform.parent = itemGrid.transform;
-            i.transform.localScale = Vector3.one;
-            EventDelegate.Add(i.GetComponent<UIButton>().onClick, () => PurchaseItem(i.name));
+            if ((LevelParameters.Instance.oneCopyOfEachItem && !item.sold) || !LevelParameters.Instance.oneCopyOfEachItem)
+                CreateNewItemObject(item, true);
         }
 
         // refresh the UIGrid
         itemGrid.repositionNow = true;
+    }
+
+    void CreateNewItemObject(Item item, bool inShop)
+    {
+        GameObject i = (GameObject)Instantiate(shopItemPrefab, Vector3.zero, Quaternion.identity);
+        i.name = item.itemName;
+        i.transform.Find("name_label").GetComponent<UILabel>().text = item.itemName;
+        i.transform.Find("price_label").GetComponent<UILabel>().text = "$" + item.itemPrice.ToString();
+        i.transform.parent = itemGrid.transform;
+        i.transform.localScale = Vector3.one;
+        
+        _currentDisplayedItems.Add(i);
+
+        EventDelegate.Add(i.GetComponent<UIButton>().onClick, () => PurchaseItem(i.name));
     }
 
     public void CloseShop()
@@ -48,22 +60,34 @@ public class Shop : MonoBehaviour {
         VectorLine.canvas.gameObject.SetActive(true);
     }
 
+    GameObject FindItemInGrid(string itemName)
+    {
+        foreach (GameObject obj in _currentDisplayedItems)
+        {
+            if (obj.name == itemName)
+                return obj;
+        }
+        return null;
+    }
+
     public void PurchaseItem(string itemName)
     {
-        Item item = ItemManager.Instance.GetItemByName(itemName);
-        if (item != null)
+        //Item item = ItemManager.Instance.GetItemByName(itemName);
+        GameObject itemGridObject = FindItemInGrid(itemName);
+        if (itemGridObject != null)
         {
+            Item item = ItemManager.Instance.GetItemByName(itemName);
             bool successfulPurchase = player.GetInventory.currentCash >= item.itemPrice;
             if (successfulPurchase)
             {
                 // TODO: some kind of feedback for purchasing
-                player.GetInventory.AddToInventory(item);
+                player.GetInventory.AddToInventory(item, player.IsInHomeTile);
                 player.GetInventory.currentCash -= item.itemPrice;
 
                 // check if we are playing with only one copy of each item
                 if (LevelParameters.Instance.oneCopyOfEachItem)
                 {
-                    ItemManager.Instance.RemoveItem(item);
+                    ItemManager.Instance.SoldItem(item);
                     DisplayItems(_currentlyDisplayingCategory);
                 }
             }

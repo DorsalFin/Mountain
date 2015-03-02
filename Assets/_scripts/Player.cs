@@ -14,7 +14,7 @@ public class Player : Character {
     public float defaultStaminaRefreshRate = 0.10f;
 
     // player camera scripts
-    private PlayerUI _playerUI;
+    public PlayerUI playerUI;
     private PlayerCamera _playerCamera;
 
     // player inventory script
@@ -32,7 +32,7 @@ public class Player : Character {
     void Start()
     {
         _playerCamera = GetComponent<PlayerCamera>();
-        _playerUI = GetComponent<PlayerUI>();
+        playerUI = GetComponent<PlayerUI>();
         _inventory = GetComponent<Inventory>();
         _initialSpawnPosition = transform.position;
         packmulesWaiting = maxPackmules;
@@ -44,11 +44,13 @@ public class Player : Character {
 
     public override bool ShouldDisplayPaths()
     {
-        if (_playerUI.shop.gameObject.activeSelf)
+        if (playerUI.shop.gameObject.activeSelf)
             return false;
 
         return true;
     }
+
+    public bool IsInHomeTile { get { return closestTile.x == -1; } }
 
     IEnumerator WaitForMountainAndGo()
     {
@@ -66,11 +68,11 @@ public class Player : Character {
         base.Update();
 
         // stamina / rest updates
-        _playerUI.restBar.value = (_turnTimer * 1000) / restInMilliseconds;
-        _playerUI.staminaBar.value += Time.deltaTime * GetCurrentStaminaRefreshRate();
+        playerUI.restBar.value = (_turnTimer * 1000) / restInMilliseconds;
+        playerUI.staminaBar.value += Time.deltaTime * GetCurrentStaminaRefreshRate();
 
         // current cash updates
-        _playerUI.currentCashLabel.text = _inventory.currentCash.ToString();
+        playerUI.currentCashLabel.text = _inventory.currentCash.ToString();
 
         if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
         {
@@ -81,17 +83,17 @@ public class Player : Character {
             if (Physics.Raycast(ray, out hit))
             {
                 if (hit.collider.tag == "ItemShop" && leftClick)
-                    _playerUI.ShopClicked();
+                    playerUI.ShopClicked();
                 else
                 {
                     // don't accept movement clicks when shop is open
-                    if (_playerUI.shop.gameObject.activeSelf)
+                    if (playerUI.shop.gameObject.activeSelf)
                         return;
-
-                    clickedOnTile = Mountain.Instance.GetClosestTile(currentFace, hit.point);
 
                     if (leftClick)
                     {
+                        clickedOnTile = Mountain.Instance.GetClosestTile(currentFace, hit.point);
+
                         if (clickedOnTile == closestTile)
                             return;
 
@@ -103,9 +105,10 @@ public class Player : Character {
                         // send a packmule to the tile if we have one available
                         if (packmulesWaiting > 0)
                         {
-                            List<Tile> pathFound = Mountain.Instance.GetPathBetweenTiles(currentFace, Mountain.Instance.GetStartPositionTile(Mountain.Instance.faces[currentFace]), clickedOnTile);
+                            Tile muleTarget = Mountain.Instance.GetClosestTile(currentFace, hit.point);
+                            List<Tile> pathFound = Mountain.Instance.GetPathBetweenTiles(currentFace, Mountain.Instance.GetStartPositionTile(Mountain.Instance.faces[currentFace]), muleTarget);
                             if (pathFound != null)
-                                SpawnPackmule();
+                                SpawnPackmule(muleTarget);
                         }
                     }
                 }
@@ -124,24 +127,24 @@ public class Player : Character {
         _playerCamera.ChangeFaceFocus(toRotate);
     }
 
-    void SpawnPackmule()
+    void SpawnPackmule(Tile target)
     {
         packmulesWaiting--;
         GameObject mule = (GameObject)Instantiate(packmulePrefab, _initialSpawnPosition, Quaternion.identity);
         Packmule packmule = mule.GetComponent<Packmule>();
         packmule.currentFace = this.currentFace;
         packmule.closestTile = null;
-        packmule.SetMuleType(this, clickedOnTile, clickedOnTile.revealed ? Packmule.MuleType.Null : Packmule.MuleType.Explorer);
-        packmule.movement.ClickedOnTile(clickedOnTile);
+        packmule.SetMuleType(this, target, target.revealed ? Packmule.MuleType.Null : Packmule.MuleType.Explorer);
+        packmule.movement.ClickedOnTile(target);
         currentPackmules.Add(packmule);
     }
 
     public void ToggleChangeFaceArrow(int direction, bool show)
     {
         if (direction == Mountain.RIGHT)
-            _playerUI.changeFaceRightButton.SetActive(show);
+            playerUI.changeFaceRightButton.SetActive(show);
         else if (direction == Mountain.LEFT)
-            _playerUI.changeFaceLeftButton.SetActive(show);
+            playerUI.changeFaceLeftButton.SetActive(show);
     }
 
     float GetCurrentStaminaRefreshRate()

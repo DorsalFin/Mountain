@@ -12,6 +12,9 @@ public class PlayerUI : MonoBehaviour {
     public GameObject changeFaceLeftButton;
     public GameObject changeFaceRightButton;
 
+    public GameObject onPlayerInventory;
+    public GameObject inBaseInventory;
+
     public Shop shop;
     public UILabel currentCashLabel;
 
@@ -20,4 +23,6 @@ public class PlayerUI : MonoBehaviour {
         shop.gameObject.SetActive(!shop.gameObject.activeSelf);
         VectorLine.canvas.gameObject.SetActive(!shop.gameObject.activeSelf);
     }
+
+
 }

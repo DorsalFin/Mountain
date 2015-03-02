@@ -64,17 +64,18 @@ public class ItemManager : MonoBehaviour {
         reader.Close();
     }
 
-    public void RemoveItem(Item item)
+    public void SoldItem(Item item)
     {
-        List<Item> itemParentList = item is Weapon ? availableWeapons : (item is Armour ? availableArmour : null);
-        foreach (Item i in itemParentList)
-        {
-            if (i == item)
-            {
-                itemParentList.Remove(item);
-                break;
-            }
-        }
+        item.sold = true;
+        //List<Item> itemParentList = item is Weapon ? availableWeapons : (item is Armour ? availableArmour : null);
+        //foreach (Item i in itemParentList)
+        //{
+        //    if (i == item)
+        //    {
+        //        itemParentList.Remove(item);
+        //        break;
+        //    }
+        //}
     }
 
     public Item GetItemByName(string itemName)
