@@ -15,6 +15,7 @@ public class UITooltip : MonoBehaviour
 	public UISprite background;
 	public float appearSpeed = 10f;
 	public bool scalingTransitions = true;
+    public Vector2 tooltipOffsetFromMouse = new Vector2();
 
 	protected Transform mTrans;
 	protected float mTarget = 0f;
@@ -143,8 +144,8 @@ public class UITooltip : MonoBehaviour
 				// Update the absolute position and save the local one
 				mTrans.position = uiCamera.ViewportToWorldPoint(mPos);
 				mPos = mTrans.localPosition;
-				mPos.x = Mathf.Round(mPos.x);
-				mPos.y = Mathf.Round(mPos.y);
+				mPos.x = Mathf.Round(mPos.x + tooltipOffsetFromMouse.x);
+				mPos.y = Mathf.Round(mPos.y + tooltipOffsetFromMouse.y);
 				mTrans.localPosition = mPos;
 			}
 			else

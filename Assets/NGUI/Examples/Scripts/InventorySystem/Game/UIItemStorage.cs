@@ -127,4 +127,23 @@ public class UIItemStorage : MonoBehaviour
 			if (background != null) background.transform.localScale = b.size;
 		}
 	}
+
+#region RHYS
+    /// <summary>
+    /// called from the category buttons on the shop screen - fills out the shop item storage
+    /// </summary>
+    public void FillWithItems(string category)
+    {
+        int index = 0;
+        foreach (InvBaseItem item in InvDatabase.list[0].items)
+        {
+            if (category == item.slot.ToString())
+            {
+                InvGameItem gi = new InvGameItem(index, item);
+                Replace(index, gi);
+                index++;
+            }
+        }
+    }
+#endregion
 }

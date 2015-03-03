@@ -16,43 +16,43 @@ public class Shop : MonoBehaviour {
     public void DisplayItems(string category)
     {
         // clear existing items in shop grid first
-        foreach (Transform oldItem in itemGrid.transform)
-            Destroy(oldItem.gameObject);
-        _currentDisplayedItems.Clear();
+        //foreach (Transform oldItem in itemGrid.transform)
+        //    Destroy(oldItem.gameObject);
+        //_currentDisplayedItems.Clear();
 
-        _currentlyDisplayingCategory = category;
+        //_currentlyDisplayingCategory = category;
 
-        // get the correct list
-        List<Item> newItems = new List<Item>();
-        if (category == "weapon")
-            newItems.AddRange(ItemManager.Instance.availableWeapons);
-        else if (category == "armour")
-            newItems.AddRange(ItemManager.Instance.availableArmour);
+        //// get the correct list
+        //List<Item> newItems = new List<Item>();
+        //if (category == "weapon")
+        //    newItems.AddRange(ItemManager.Instance.availableWeapons);
+        //else if (category == "armour")
+        //    newItems.AddRange(ItemManager.Instance.availableArmour);
 
-        // fill the item prefabs into the shop
-        foreach (Item item in newItems)
-        {
-            if ((LevelParameters.Instance.oneCopyOfEachItem && !item.sold) || !LevelParameters.Instance.oneCopyOfEachItem)
-                CreateNewItemObject(item, true);
-        }
+        //// fill the item prefabs into the shop
+        //foreach (Item item in newItems)
+        //{
+        //    if ((LevelParameters.Instance.oneCopyOfEachItem && !item.sold) || !LevelParameters.Instance.oneCopyOfEachItem)
+        //        CreateNewItemObject(item, true);
+        //}
 
-        // refresh the UIGrid
-        itemGrid.repositionNow = true;
+        //// refresh the UIGrid
+        //itemGrid.repositionNow = true;
     }
 
-    void CreateNewItemObject(Item item, bool inShop)
-    {
-        GameObject i = (GameObject)Instantiate(shopItemPrefab, Vector3.zero, Quaternion.identity);
-        i.name = item.itemName;
-        i.transform.Find("name_label").GetComponent<UILabel>().text = item.itemName;
-        i.transform.Find("price_label").GetComponent<UILabel>().text = "$" + item.itemPrice.ToString();
-        i.transform.parent = itemGrid.transform;
-        i.transform.localScale = Vector3.one;
+    //void CreateNewItemObject(Item item, bool inShop)
+    //{
+    //    GameObject i = (GameObject)Instantiate(shopItemPrefab, Vector3.zero, Quaternion.identity);
+    //    i.name = item.itemName;
+    //    i.transform.Find("name_label").GetComponent<UILabel>().text = item.itemName;
+    //    i.transform.Find("price_label").GetComponent<UILabel>().text = "$" + item.itemPrice.ToString();
+    //    i.transform.parent = itemGrid.transform;
+    //    i.transform.localScale = Vector3.one;
         
-        _currentDisplayedItems.Add(i);
+    //    _currentDisplayedItems.Add(i);
 
-        EventDelegate.Add(i.GetComponent<UIButton>().onClick, () => PurchaseItem(i.name));
-    }
+    //    EventDelegate.Add(i.GetComponent<UIButton>().onClick, () => PurchaseItem(i.name));
+    //}
 
     public void CloseShop()
     {

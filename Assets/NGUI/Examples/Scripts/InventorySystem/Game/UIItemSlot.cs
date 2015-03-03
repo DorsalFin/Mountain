@@ -99,11 +99,26 @@ public abstract class UIItemSlot : MonoBehaviour
 		}
 		else if (mItem != null)
 		{
-			mDraggedItem = Replace(null);
-			if (mDraggedItem != null) NGUITools.PlaySound(grabSound);
-			UpdateCursor();
+            if (UICamera.currentTouchID == -2)
+            {
+                Debug.Log("buy it mate buy buy buy");
+            }
+            else
+            {
+                //mDraggedItem = Replace(null);
+                //if (mDraggedItem != null) NGUITools.PlaySound(grabSound);
+                //UpdateCursor();
+            }
 		}
 	}
+
+    void OnHover(bool isOver)
+    {
+        if (isOver)
+            OnTooltip(true);
+        else
+            OnTooltip(false);
+    }
 
 	/// <summary>
 	/// Start dragging the item.
@@ -188,10 +203,10 @@ public abstract class UIItemSlot : MonoBehaviour
 				}
 			}
 
-			if (background != null)
-			{
-				background.color = (i != null) ? i.color : Color.white;
-			}
+            //if (background != null)
+            //{
+            //    background.color = (i != null) ? i.color : Color.white;
+            //}
 		}
 	}
 }
