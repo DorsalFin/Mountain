@@ -13,6 +13,9 @@ using System.Collections.Generic;
 [AddComponentMenu("NGUI/Examples/UI Item Storage")]
 public class UIItemStorage : MonoBehaviour
 {
+
+    public Shop fromShop;
+
 	/// <summary>
 	/// Maximum size of the container. Adding more items than this number will not work.
 	/// </summary>
@@ -139,11 +142,29 @@ public class UIItemStorage : MonoBehaviour
         {
             if (category == item.slot.ToString())
             {
-                InvGameItem gi = new InvGameItem(index, item);
+                InvGameItem gi = new InvGameItem(index, item, fromShop);
                 Replace(index, gi);
                 index++;
             }
         }
+    }
+
+    public bool AddItemToStorage(InvGameItem item)
+    {
+        int currentItemsInStorage = GetCountOfItemsOnDisplay();
+        if (currentItemsInStorage < maxItemCount)
+        {
+            Replace(currentItemsInStorage, item);
+        }
+        return false;
+    }
+
+    int GetCountOfItemsOnDisplay()
+    {
+        int counter = 0;
+        foreach (InvGameItem item in mItems)
+            if (item != null) counter++;
+        return counter;
     }
 #endregion
 }

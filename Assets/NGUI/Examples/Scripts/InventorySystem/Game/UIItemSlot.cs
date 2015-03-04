@@ -101,7 +101,10 @@ public abstract class UIItemSlot : MonoBehaviour
 		{
             if (UICamera.currentTouchID == -2)
             {
-                Debug.Log("buy it mate buy buy buy");
+                Player buyer = mItem.FromShop.player;
+                bool successfulPurchase = buyer.PurchaseItem(mItem);
+                //if (successfulPurchase)
+                    // remove somehow
             }
             else
             {
@@ -126,13 +129,13 @@ public abstract class UIItemSlot : MonoBehaviour
 
 	void OnDrag (Vector2 delta)
 	{
-		if (mDraggedItem == null && mItem != null)
-		{
-			UICamera.currentTouch.clickNotification = UICamera.ClickNotification.BasedOnDelta;
-			mDraggedItem = Replace(null);
-			NGUITools.PlaySound(grabSound);
-			UpdateCursor();
-		}
+        //if (mDraggedItem == null && mItem != null)
+        //{
+        //    UICamera.currentTouch.clickNotification = UICamera.ClickNotification.BasedOnDelta;
+        //    mDraggedItem = Replace(null);
+        //    NGUITools.PlaySound(grabSound);
+        //    UpdateCursor();
+        //}
 	}
 
 	/// <summary>
@@ -141,14 +144,14 @@ public abstract class UIItemSlot : MonoBehaviour
 
 	void OnDrop (GameObject go)
 	{
-		InvGameItem item = Replace(mDraggedItem);
+        //InvGameItem item = Replace(mDraggedItem);
 
-		if (mDraggedItem == item) NGUITools.PlaySound(errorSound);
-		else if (item != null) NGUITools.PlaySound(grabSound);
-		else NGUITools.PlaySound(placeSound);
+        //if (mDraggedItem == item) NGUITools.PlaySound(errorSound);
+        //else if (item != null) NGUITools.PlaySound(grabSound);
+        //else NGUITools.PlaySound(placeSound);
 
-		mDraggedItem = item;
-		UpdateCursor();
+        //mDraggedItem = item;
+        //UpdateCursor();
 	}
 
 	/// <summary>

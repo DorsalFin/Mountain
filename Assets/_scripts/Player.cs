@@ -50,6 +50,23 @@ public class Player : Character {
         return true;
     }
 
+    public bool PurchaseItem(InvGameItem item)
+    {
+        // if we have enough funds...
+        if (_inventory.currentCash >= item.baseItem.cost)
+        {
+            // try add to item storage - will return false if no room
+            bool successfullyAdded = playerUI.inBaseInventory.AddItemToStorage(item);
+            if (successfullyAdded)
+            {
+                // minus the money
+                _inventory.currentCash -= item.baseItem.cost;
+                return true;
+            }
+        }
+        return false;
+    }
+
     public bool IsInHomeTile { get { return closestTile.x == -1; } }
 
     IEnumerator WaitForMountainAndGo()

@@ -300,12 +300,20 @@ public class InvDatabaseInspector : Editor
 				}
 
 				// Item level range
-				GUILayout.BeginHorizontal();
-				GUILayout.Label("Level Range", GUILayout.Width(77f));
-				int min = EditorGUILayout.IntField(item.minItemLevel, GUILayout.MinWidth(40f));
-				int max = EditorGUILayout.IntField(item.maxItemLevel, GUILayout.MinWidth(40f));
-				if (drawIcon) GUILayout.Space(iconSize);
-				GUILayout.EndHorizontal();
+                //GUILayout.BeginHorizontal();
+                //GUILayout.Label("Level Range", GUILayout.Width(77f));
+                //int min = EditorGUILayout.IntField(item.minItemLevel, GUILayout.MinWidth(40f));
+                //int max = EditorGUILayout.IntField(item.maxItemLevel, GUILayout.MinWidth(40f));
+                //if (drawIcon) GUILayout.Space(iconSize);
+                //GUILayout.EndHorizontal();
+
+                // cost
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Cost", GUILayout.Width(77f));
+                int cost = EditorGUILayout.IntField(item.cost, GUILayout.MinWidth(80f));
+                if (drawIcon) GUILayout.Space(iconSize);
+                GUILayout.EndHorizontal();
+
 
 				// Game Object attachment field, left of the icon
 				GUILayout.BeginHorizontal();
@@ -380,8 +388,9 @@ public class InvDatabaseInspector : Editor
 					slot	!= item.slot ||
 					go		!= item.attachment ||
 					color	!= item.color ||
-					min		!= item.minItemLevel ||
-					max		!= item.maxItemLevel ||
+                    //min		!= item.minItemLevel ||
+                    //max		!= item.maxItemLevel ||
+                    cost != item.cost ||
 					!iconName.Equals(item.iconName))
 				{
 					NGUIEditorTools.RegisterUndo("Item Properties", db);
@@ -390,8 +399,9 @@ public class InvDatabaseInspector : Editor
 					item.attachment = go;
 					item.color = color;
 					item.iconName = iconName;
-					item.minItemLevel = min;
-					item.maxItemLevel = max;
+                    item.cost = cost;
+                    //item.minItemLevel = min;
+                    //item.maxItemLevel = max;
 				}
 			}
 		}

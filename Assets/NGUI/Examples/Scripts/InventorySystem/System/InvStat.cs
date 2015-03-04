@@ -14,15 +14,13 @@ public class InvStat
 
 	public enum Identifier
 	{
-		Strength,
-		Constitution,
-		Agility,
-		Intelligence,
+		AttackSpeed,
+		Weight,
+		HitChance,
 		Damage,
-		Crit,
+		CritChance,
 		Armor,
-		Health,
-		Mana,
+		BlockChance,
 		Other,
 	}
 
@@ -55,18 +53,18 @@ public class InvStat
 
 	static public string GetDescription (Identifier i)
 	{
-		switch (i)
-		{
-			case Identifier.Strength:		return "Strength increases melee damage";
-			case Identifier.Constitution:	return "Constitution increases health";
-			case Identifier.Agility:		return "Agility increases armor";
-			case Identifier.Intelligence:	return "Intelligence increases mana";
-			case Identifier.Damage:			return "Damage adds to the amount of damage done in combat";
-			case Identifier.Crit:			return "Crit increases the chance of landing a critical strike";
-			case Identifier.Armor:			return "Armor protects from damage";
-			case Identifier.Health:			return "Health prolongs life";
-			case Identifier.Mana:			return "Mana increases the number of spells that can be cast";
-		}
+        //switch (i)
+        //{
+            //case Identifier.Strength:		return "Strength increases melee damage";
+            //case Identifier.Constitution:	return "Constitution increases health";
+            //case Identifier.Agility:		return "Agility increases armor";
+            //case Identifier.Intelligence:	return "Intelligence increases mana";
+            //case Identifier.Damage:			return "Damage adds to the amount of damage done in combat";
+            //case Identifier.Crit:			return "Crit increases the chance of landing a critical strike";
+            //case Identifier.Armor:			return "Armor protects from damage";
+            //case Identifier.Health:			return "Health prolongs life";
+            //case Identifier.Mana:			return "Mana increases the number of spells that can be cast";
+        //}
 		return null;
 	}
 

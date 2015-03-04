@@ -43,6 +43,8 @@ public class InvBaseItem
 
 	public string description;
 
+    public int cost;
+
 	/// <summary>
 	/// Slot that this item belongs to.
 	/// </summary>

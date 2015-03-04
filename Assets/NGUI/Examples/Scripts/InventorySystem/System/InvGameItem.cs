@@ -47,7 +47,12 @@ public class InvGameItem
 	// Cached for speed
 	InvBaseItem mBaseItem;
 
-	/// <summary>
+#region RHYS
+    Shop _shop;
+    public Shop FromShop { get { return _shop; } }
+#endregion
+
+    /// <summary>
 	/// ID of the base item used to create this one.
 	/// </summary>
 
@@ -159,7 +164,7 @@ public class InvGameItem
 	/// Create a game item with the specified ID and base item.
 	/// </summary>
 
-	public InvGameItem (int id, InvBaseItem bi) { mBaseItemID = id; mBaseItem = bi; }
+    public InvGameItem(int id, InvBaseItem bi, Shop shop = null) { mBaseItemID = id; mBaseItem = bi; _shop = shop; }
 
 	/// <summary>
 	/// Calculate and return the list of effective stats based on item level and quality.

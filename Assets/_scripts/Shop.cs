@@ -9,12 +9,12 @@ public class Shop : MonoBehaviour {
     public GameObject shopItemPrefab;
     private string _currentlyDisplayingCategory;
 
-    private List<GameObject> _currentDisplayedItems = new List<GameObject>();
+    //private List<GameObject> _currentDisplayedItems = new List<GameObject>();
 
     public Player player;
 
-    public void DisplayItems(string category)
-    {
+    //public void DisplayItems(string category)
+    //{
         // clear existing items in shop grid first
         //foreach (Transform oldItem in itemGrid.transform)
         //    Destroy(oldItem.gameObject);
@@ -38,7 +38,7 @@ public class Shop : MonoBehaviour {
 
         //// refresh the UIGrid
         //itemGrid.repositionNow = true;
-    }
+    //}
 
     //void CreateNewItemObject(Item item, bool inShop)
     //{
@@ -60,42 +60,42 @@ public class Shop : MonoBehaviour {
         VectorLine.canvas.gameObject.SetActive(true);
     }
 
-    GameObject FindItemInGrid(string itemName)
-    {
-        foreach (GameObject obj in _currentDisplayedItems)
-        {
-            if (obj.name == itemName)
-                return obj;
-        }
-        return null;
-    }
+    //GameObject FindItemInGrid(string itemName)
+    //{
+    //    foreach (GameObject obj in _currentDisplayedItems)
+    //    {
+    //        if (obj.name == itemName)
+    //            return obj;
+    //    }
+    //    return null;
+    //}
 
-    public void PurchaseItem(string itemName)
-    {
-        //Item item = ItemManager.Instance.GetItemByName(itemName);
-        GameObject itemGridObject = FindItemInGrid(itemName);
-        if (itemGridObject != null)
-        {
-            Item item = ItemManager.Instance.GetItemByName(itemName);
-            bool successfulPurchase = player.GetInventory.currentCash >= item.itemPrice;
-            if (successfulPurchase)
-            {
-                // TODO: some kind of feedback for purchasing
-                player.GetInventory.AddToInventory(item, player.IsInHomeTile);
-                player.GetInventory.currentCash -= item.itemPrice;
+    //public void PurchaseItem(string itemName)
+    //{
+    //    //Item item = ItemManager.Instance.GetItemByName(itemName);
+    //    GameObject itemGridObject = FindItemInGrid(itemName);
+    //    if (itemGridObject != null)
+    //    {
+    //        Item item = ItemManager.Instance.GetItemByName(itemName);
+    //        bool successfulPurchase = player.GetInventory.currentCash >= item.itemPrice;
+    //        if (successfulPurchase)
+    //        {
+    //            // TODO: some kind of feedback for purchasing
+    //            player.GetInventory.AddToInventory(item, player.IsInHomeTile);
+    //            player.GetInventory.currentCash -= item.itemPrice;
 
-                // check if we are playing with only one copy of each item
-                if (LevelParameters.Instance.oneCopyOfEachItem)
-                {
-                    ItemManager.Instance.SoldItem(item);
-                    DisplayItems(_currentlyDisplayingCategory);
-                }
-            }
-            else
-            {
-                // TODO: handle not enough money... popup? sound? something?
-            }
-        }
-    }
+    //            // check if we are playing with only one copy of each item
+    //            if (LevelParameters.Instance.oneCopyOfEachItem)
+    //            {
+    //                ItemManager.Instance.SoldItem(item);
+    //                DisplayItems(_currentlyDisplayingCategory);
+    //            }
+    //        }
+    //        else
+    //        {
+    //            // TODO: handle not enough money... popup? sound? something?
+    //        }
+    //    }
+    //}
 
 }

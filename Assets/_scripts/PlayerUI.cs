@@ -12,8 +12,8 @@ public class PlayerUI : MonoBehaviour {
     public GameObject changeFaceLeftButton;
     public GameObject changeFaceRightButton;
 
-    public GameObject onPlayerInventory;
-    public GameObject inBaseInventory;
+    //public GameObject onPlayerInventory;
+    public UIItemStorage inBaseInventory;
 
     public Shop shop;
     public UILabel currentCashLabel;
