@@ -12,6 +12,14 @@ using System.Collections.Generic;
 [System.Serializable]
 public class InvGameItem
 {
+    public enum Location
+    {
+        Shop,
+        Base,
+        Person
+    }
+    public Location location;
+
 	public enum Quality
 	{
 		Broken,

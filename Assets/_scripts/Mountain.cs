@@ -138,7 +138,7 @@ public class Mountain : MonoBehaviour {
 
             // generate the random levels to place paths on
             List<int> levels = new List<int>();
-            for (int i = 0; i < LevelParameters.Instance.numPathsBetweenOneFaceAndAnother + 1; i++) // plus one since the path to the home tile counts as 1
+            for (int i = 0; i < LevelParameters.Instance.numPathsBetweenOneFaceAndAnother; i++)
             {
                 while (true)
                 {
@@ -187,7 +187,7 @@ public class Mountain : MonoBehaviour {
     void CheckPathsFromStartTile(string face, Tile tile)
     {
         List<Tile> connectedTiles = GetConnectedTiles(faces[face], tile);
-        int goal = LevelParameters.Instance.guaranteedPathsFromFirstTile;
+        int goal = LevelParameters.Instance.guaranteedPathsFromFirstTile + 1; // plus one since the path to home tile is counted also
         if (connectedTiles.Count < goal)
         {
             int additionalTilesNeeded = goal - connectedTiles.Count;

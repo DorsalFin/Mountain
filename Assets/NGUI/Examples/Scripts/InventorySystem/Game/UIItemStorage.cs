@@ -14,6 +14,14 @@ using System.Collections.Generic;
 public class UIItemStorage : MonoBehaviour
 {
 
+    public enum StorageType
+    {
+        Shop,
+        AtBase,
+        OnPerson
+    }
+    public StorageType storageType;
+
     public Shop fromShop;
 
 	/// <summary>
@@ -135,17 +143,21 @@ public class UIItemStorage : MonoBehaviour
     /// <summary>
     /// called from the category buttons on the shop screen - fills out the shop item storage
     /// </summary>
-    public void FillWithItems(string category)
+    public void FillShopWithItems(string category)
     {
         int index = 0;
         foreach (InvBaseItem item in InvDatabase.list[0].items)
         {
-            if (category == item.slot.ToString())
+            if (!item.sold && category == item.slot.ToString())
             {
                 InvGameItem gi = new InvGameItem(index, item, fromShop);
                 Replace(index, gi);
                 index++;
             }
+        }
+        for (int i = index; i < maxItemCount; i++)
+        {
+            Replace(i, null);
         }
     }
 
@@ -155,6 +167,8 @@ public class UIItemStorage : MonoBehaviour
         if (currentItemsInStorage < maxItemCount)
         {
             Replace(currentItemsInStorage, item);
+            item.location = storageType == StorageType.Shop ? InvGameItem.Location.Shop : storageType == StorageType.AtBase ? InvGameItem.Location.Base : InvGameItem.Location.Person;
+            return true;
         }
         return false;
     }
