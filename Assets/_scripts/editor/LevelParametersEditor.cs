@@ -16,6 +16,7 @@ public class LevelParametersEditor : Editor {
         myTarget.numPathsBetweenOneFaceAndAnother = EditorGUILayout.IntSlider("Number of paths connecting faces", myTarget.numPathsBetweenOneFaceAndAnother, 0, 3);
         myTarget.startingCash = EditorGUILayout.IntField("Starting cash", myTarget.startingCash);
         myTarget.initialMineralYield = EditorGUILayout.IntField("Initial mineral amount on mineral tiles", myTarget.initialMineralYield);
+        myTarget.mineralRefreshNumSeconds = EditorGUILayout.IntField("Seconds until mineral fields regen 1", myTarget.mineralRefreshNumSeconds);
         myTarget.percentageMineralsDrainedEachHarvest = EditorGUILayout.IntSlider("Percentage of minerals drained each harvest", myTarget.percentageMineralsDrainedEachHarvest, 0, 100);
         myTarget.oneCopyOfEachItem = EditorGUILayout.Toggle("One of each item up for grabs", myTarget.oneCopyOfEachItem);
     }

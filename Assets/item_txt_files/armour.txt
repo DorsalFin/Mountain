@@ -1,2 +1,0 @@
-# name  :  cost  :  dmgreduction  :  blockchance  :  weight
-shield:5:3:20:5

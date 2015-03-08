@@ -77,6 +77,11 @@ public class LevelParameters : MonoBehaviour {
     public int initialMineralYield = 60;
 
     /// <summary>
+    /// every 'this' seconds a mineral field refreshes it's yield by 1
+    /// </summary>
+    public int mineralRefreshNumSeconds = 10;
+
+    /// <summary>
     /// this percentage of minerals is gathered by a mule each time they harvest a mineral
     /// tile and walk it back to base
     /// </summary>

@@ -25,6 +25,8 @@ public class Tile {
                                          0,   0,
                                           0, 0 };
 
+    private float _timer;
+
     public Tile() { }
     public Tile(Transform tileTransform)
     {
@@ -122,19 +124,44 @@ public class Tile {
     {
         for (int i = 0; i < openPaths.Length; i++)
         {
-            if (i == Mountain.TOP_LEFT && (selectedPathOnly == 99 || selectedPathOnly == Mountain.TOP_LEFT))
-                tileTransform.parent.Find("top_left").gameObject.SetActive(openPaths[i] == 1 && reveal);
-            else if (i == Mountain.TOP_RIGHT && (selectedPathOnly == 99 || selectedPathOnly == Mountain.TOP_RIGHT))
-                tileTransform.parent.Find("top_right").gameObject.SetActive(openPaths[i] == 1 && reveal);
-            else if (i == Mountain.LEFT && (selectedPathOnly == 99 || selectedPathOnly == Mountain.LEFT))
-                tileTransform.parent.Find("left").gameObject.SetActive(openPaths[i] == 1 && reveal);
-            else if (i == Mountain.RIGHT && (selectedPathOnly == 99 || selectedPathOnly == Mountain.RIGHT))
-                tileTransform.parent.Find("right").gameObject.SetActive(openPaths[i] == 1 && reveal);
-            else if (i == Mountain.BOTTOM_LEFT && (selectedPathOnly == 99 || selectedPathOnly == Mountain.BOTTOM_LEFT))
-                tileTransform.parent.Find("bottom_left").gameObject.SetActive(openPaths[i] == 1 && reveal);
-            else if (i == Mountain.BOTTOM_RIGHT && (selectedPathOnly == 99 || selectedPathOnly == Mountain.BOTTOM_RIGHT))
-                tileTransform.parent.Find("bottom_right").gameObject.SetActive(openPaths[i] == 1 && reveal);
+            // get the neighboring tile in this direction, if it exists
+            Tile neighbor = Mountain.Instance.GetTilesNeighbour(Mountain.Instance.faces[face], this, i, false);
+
+            // if we don't have a neighbor there is no path to show so turn off sprite and continue
+            if (neighbor == null)
+            {
+                tileTransform.parent.Find(GetStringForDirection(i)).gameObject.SetActive(false);
+                continue;
+            }
+
+            //bool fullPath = Mountain.Instance.GetConnectionTypeBetweenTiles(Mountain.Instance.faces[face], this, i, false) == 2;
+
+            if (selectedPathOnly == 99 || selectedPathOnly == i)
+            {
+                // if it's half a path - boulder
+                //if (!fullPath)
+                //    Mountain.Instance.CreateBoulder(tileTransform, neighbor.tileTransform);
+                // else its a full path
+                //else
+                    tileTransform.parent.Find(GetStringForDirection(i)).gameObject.SetActive(openPaths[i] == 1 && reveal);
+            }
         }
+    }
+
+    string GetStringForDirection(int direction)
+    {
+        if (direction == Mountain.TOP_LEFT)
+            return "top_left";
+        else if (direction == Mountain.TOP_RIGHT)
+            return "top_right";
+        else if (direction == Mountain.LEFT)
+            return "left";
+        else if (direction == Mountain.RIGHT)
+            return "right";
+        else if (direction == Mountain.BOTTOM_LEFT)
+            return "bottom_left";
+        else //if (direction == Mountain.BOTTOM_RIGHT)
+            return "bottom_right";
     }
 
 }

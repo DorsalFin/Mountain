@@ -1,5 +1,0 @@
-# name  :  cost  :  astkSpeed  :  atkDmg  :  hitChance
-sword:10:10:5:75
-heavy axe:12:6:10:60
-flail:6:8:3:80
-lance:15:3:15:50

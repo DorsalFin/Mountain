@@ -376,7 +376,7 @@ public class UICamera : MonoBehaviour
 	/// Caching is always preferable for performance.
 	/// </summary>
 
-	public Camera cachedCamera { get { if (mCam == null) mCam = camera; return mCam; } }
+	public Camera cachedCamera { get { if (mCam == null) mCam = GetComponent<Camera>(); return mCam; } }
 
 	/// <summary>
 	/// Set to 'true' just before OnDrag-related events are sent. No longer needed, but kept for backwards compatibility.
@@ -913,7 +913,22 @@ public class UICamera : MonoBehaviour
 		if (mNotifying) return;
 		mNotifying = true;
 
-		if (NGUITools.GetActive(go))
+//#region RHYS
+//        bool sellItemToShop = funcName == "OnDrop" && go != null && go.tag == "ItemShop";
+//        bool snapBackOnDrop = sellItemToShop == false && funcName == "OnDrop" && (go == null || go.tag != "ValidItemDrop");
+//        if (snapBackOnDrop)
+//        {
+//            GameObject itemObj = (GameObject)obj;
+//            //itemObj.GetComponent<InvGameItem>().SnapBackToSlot(); // can't get component on non monobehaviour
+
+//        }
+//        else if (sellItemToShop)
+//        {
+            
+//        }
+//#endregion
+
+        if (NGUITools.GetActive(go))
 		{
 			go.SendMessage(funcName, obj, SendMessageOptions.DontRequireReceiver);
 
@@ -1606,7 +1621,6 @@ public class UICamera : MonoBehaviour
 				}
 				else if (currentTouch.dragStarted) // The button/touch was released on a different object
 				{
-					// Send a drop notification (for drag & drop)
 					Notify(currentTouch.current, "OnDrop", currentTouch.dragged);
 				}
 			}

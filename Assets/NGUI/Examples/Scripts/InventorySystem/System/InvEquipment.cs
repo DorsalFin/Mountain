@@ -8,6 +8,8 @@ using System.Collections.Generic;
 [AddComponentMenu("NGUI/Examples/Equipment")]
 public class InvEquipment : MonoBehaviour
 {
+    public Player player;
+
 	InvGameItem[] mItems;
 	InvAttachmentPoint[] mAttachments;
 
@@ -17,6 +19,11 @@ public class InvEquipment : MonoBehaviour
 
 	public InvGameItem[] equippedItems { get { return mItems; } }
 
+    void Start()
+    {
+        player = GetComponent<Player>();
+    }
+
 	/// <summary>
 	/// Equip the specified item automatically replacing an existing one.
 	/// </summary>
@@ -25,20 +32,81 @@ public class InvEquipment : MonoBehaviour
 	{
 		InvBaseItem baseItem = (item != null) ? item.baseItem : null;
 
+        if (mItems == null)
+        {
+            // Automatically figure out how many item slots we need
+            int count = (int)InvBaseItem.Slot._LastDoNotUse;
+            mItems = new InvGameItem[count];
+        }
+
 		if (slot != InvBaseItem.Slot.None)
 		{
 			// If the item is not of appropriate type, we shouldn't do anything
-			if (baseItem != null && baseItem.slot != slot) return item;
+            //if (baseItem != null && baseItem.slot != slot) return item;
 
-			if (mItems == null)
-			{
-				// Automatically figure out how many item slots we need
-				int count = (int)InvBaseItem.Slot._LastDoNotUse;
-				mItems = new InvGameItem[count];
-			}
+            InvGameItem itemToReturn = null;
+
+            // check if we have a valid slot
+            if (baseItem != null)
+            {
+                // weapon slotted items can go in either left or right hand slots
+                if (baseItem.slot == InvBaseItem.Slot.Weapon || baseItem.slot == InvBaseItem.Slot.Shield)
+                {
+                    if (slot != InvBaseItem.Slot.LeftHand && slot != InvBaseItem.Slot.RightHand)
+                        return item;
+
+                    // get the items we are currently holding in our hands
+                    List<InvGameItem> itemsInHands = new List<InvGameItem>();
+                    foreach (InvGameItem itemInHand in mItems)
+                        if (itemInHand != null && (itemInHand.baseItem.slot == InvBaseItem.Slot.Weapon || itemInHand.baseItem.slot == InvBaseItem.Slot.Shield))
+                            itemsInHands.Add(itemInHand);
+
+                    // now deal with any special cases
+                    if (itemsInHands.Count == 1)
+                    {
+                        // return any weapon that might be in the other hand
+                        // since we need two slots for the two handed weapon
+                        if (baseItem.twoHanded)
+                            itemToReturn = itemsInHands[0];
+                        else
+                        {
+                            // if equipping a single handed weapon into a two hander,
+                            // make sure to return the two hander
+                            if (itemsInHands[0].baseItem.twoHanded)
+                                itemToReturn = itemsInHands[0];
+                        }
+                    }
+                    else if (itemsInHands.Count > 1)
+                    {
+                        if (baseItem.twoHanded)
+                            // if two items in hands, failure - don't equip
+                            return item;
+                    }
+                }
+                else
+                    if (baseItem.slot != slot) 
+                        return item;
+            }
+
+            int indexToReturn = 99;
+            if (itemToReturn != null)
+            {
+                for (int i = 0; i < mItems.Length; i++)
+                {
+                    if (mItems[i] == itemToReturn)
+                    {
+                        indexToReturn = i;
+                        break;
+                    }
+                }
+            }
 
 			// Equip this item
-			InvGameItem prev = mItems[(int)slot - 1];
+            InvGameItem prev = indexToReturn == 99 ? mItems[(int)slot - 1] : mItems[indexToReturn];
+            if (itemToReturn != null)
+                Replace((slot == InvBaseItem.Slot.RightHand ? InvBaseItem.Slot.LeftHand : InvBaseItem.Slot.RightHand), null);
+
+
 			mItems[(int)slot - 1] = item;
 
 			// Get the list of all attachment points
@@ -55,7 +123,7 @@ public class InvEquipment : MonoBehaviour
 
 					if (baseItem != null && go != null)
 					{
-						Renderer ren = go.renderer;
+						Renderer ren = go.GetComponent<Renderer>();
 						if (ren != null) ren.material.color = baseItem.color;
 					}
 				}

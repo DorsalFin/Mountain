@@ -14,13 +14,13 @@ using System.Collections.Generic;
 public class UIItemStorage : MonoBehaviour
 {
 
-    public enum StorageType
+    public enum Location
     {
         Shop,
         AtBase,
         OnPerson
     }
-    public StorageType storageType;
+    public Location storageType;
 
     public Shop fromShop;
 
@@ -116,6 +116,8 @@ public class UIItemStorage : MonoBehaviour
 					t.localPosition = new Vector3(padding + (x + 0.5f) * spacing, -padding - (y + 0.5f) * spacing, 0f);
 
 					UIStorageSlot slot = go.GetComponent<UIStorageSlot>();
+                    slot.storageType = storageType;
+                    slot.fromStorage = this;
 					
 					if (slot != null)
 					{
@@ -155,6 +157,7 @@ public class UIItemStorage : MonoBehaviour
                 index++;
             }
         }
+        // fill out the remainder with blank spaces
         for (int i = index; i < maxItemCount; i++)
         {
             Replace(i, null);
@@ -167,7 +170,7 @@ public class UIItemStorage : MonoBehaviour
         if (currentItemsInStorage < maxItemCount)
         {
             Replace(currentItemsInStorage, item);
-            item.location = storageType == StorageType.Shop ? InvGameItem.Location.Shop : storageType == StorageType.AtBase ? InvGameItem.Location.Base : InvGameItem.Location.Person;
+            item.location = storageType;
             return true;
         }
         return false;

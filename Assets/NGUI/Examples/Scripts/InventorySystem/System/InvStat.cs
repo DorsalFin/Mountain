@@ -21,6 +21,8 @@ public class InvStat
 		CritChance,
 		Armor,
 		BlockChance,
+        CritReduction,
+        Speed,
 		Other,
 	}
 

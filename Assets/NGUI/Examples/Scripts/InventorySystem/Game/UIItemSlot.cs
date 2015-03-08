@@ -28,6 +28,9 @@ public abstract class UIItemSlot : MonoBehaviour
 
 	static InvGameItem mDraggedItem;
 
+    public UIItemStorage.Location storageType;
+    public UIItemStorage fromStorage;
+
 	/// <summary>
 	/// This function should return the item observed by this UI class.
 	/// </summary>
@@ -95,11 +98,29 @@ public abstract class UIItemSlot : MonoBehaviour
 	{
 		if (mDraggedItem != null)
 		{
-			OnDrop(null);
+            if (storageType == UIItemStorage.Location.Shop)
+            {
+                Debug.Log("TODO: sell item to shop here");
+            }
+            else
+                OnDrop(null);
 		}
 		else if (mItem != null)
 		{
-            if (UICamera.currentTouchID == -2)
+            if (UICamera.currentTouchID == -1)
+            {
+                if (mItem.location == UIItemStorage.Location.Shop)
+                {
+                    Debug.Log("TODO: show item details in shop");
+                }
+                else
+                {
+                    mDraggedItem = Replace(null);
+                    if (mDraggedItem != null) NGUITools.PlaySound(grabSound);
+                    UpdateCursor();
+                }
+            }
+            else if (UICamera.currentTouchID == -2)
             {
                 Player buyer = mItem.FromShop.player;
                 bool successfulPurchase = buyer.PurchaseItem(mItem);
@@ -108,12 +129,6 @@ public abstract class UIItemSlot : MonoBehaviour
                     mItem.baseItem.sold = true;
                     Replace(null);
                 }
-            }
-            else
-            {
-                //mDraggedItem = Replace(null);
-                //if (mDraggedItem != null) NGUITools.PlaySound(grabSound);
-                //UpdateCursor();
             }
 		}
 	}
@@ -132,7 +147,7 @@ public abstract class UIItemSlot : MonoBehaviour
 
 	void OnDrag (Vector2 delta)
 	{
-        if (mDraggedItem == null && mItem != null && mItem.location != InvGameItem.Location.Shop)
+        if (mDraggedItem == null && mItem != null && mItem.location != UIItemStorage.Location.Shop) // can't drag things in the shop
         {
             UICamera.currentTouch.clickNotification = UICamera.ClickNotification.BasedOnDelta;
             mDraggedItem = Replace(null);
@@ -147,14 +162,32 @@ public abstract class UIItemSlot : MonoBehaviour
 
 	void OnDrop (GameObject go)
 	{
-        InvGameItem item = Replace(mDraggedItem);
+        bool allowed = mDraggedItem.location == storageType;
+        if (mDraggedItem.location != storageType)
+        {
+            Player player = null;
+            // if this in a equipment slot then we have no reference
+            if (this is UIEquipmentSlot)
+            {
+                UIEquipmentSlot eqSlot = (UIEquipmentSlot)this;
+                player = eqSlot.equipment.player;
+            }
+            else
+                player = fromStorage.fromShop.player;
 
-        if (mDraggedItem == item) NGUITools.PlaySound(errorSound);
-        else if (item != null) NGUITools.PlaySound(grabSound);
-        else NGUITools.PlaySound(placeSound);
+            allowed = player.IsInHomeTile;
+        }
 
-        mDraggedItem = item;
-        UpdateCursor();
+        if (allowed)
+        {
+            InvGameItem item = Replace(mDraggedItem);
+            mDraggedItem.location = storageType;
+            if (mDraggedItem == item) NGUITools.PlaySound(errorSound);
+            else if (item != null) NGUITools.PlaySound(grabSound);
+            else NGUITools.PlaySound(placeSound);
+            mDraggedItem = item;
+            UpdateCursor();
+        }
 	}
 
 	/// <summary>

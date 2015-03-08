@@ -310,9 +310,11 @@ public class InvDatabaseInspector : Editor
                 // cost
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("Cost", GUILayout.Width(77f));
-                int cost = EditorGUILayout.IntField(item.cost, GUILayout.MinWidth(44f));
-                GUILayout.Label("Unlimited Supply", GUILayout.Width(100f));
+                int cost = EditorGUILayout.IntField(item.cost, GUILayout.Width(44f));
+                GUILayout.Label("Unlimited", GUILayout.Width(60f));
                 bool unlimitedSupply = EditorGUILayout.Toggle(item.unlimitedSupply);
+                GUILayout.Label("2 Handed", GUILayout.Width(60f));
+                bool twoHanded = EditorGUILayout.Toggle(item.twoHanded);
                 if (drawIcon) GUILayout.Space(iconSize);
                 GUILayout.EndHorizontal();
 
@@ -394,6 +396,7 @@ public class InvDatabaseInspector : Editor
                     //max		!= item.maxItemLevel ||
                     cost != item.cost ||
                     unlimitedSupply != item.unlimitedSupply ||
+                    twoHanded != item.twoHanded ||
 					!iconName.Equals(item.iconName))
 				{
 					NGUIEditorTools.RegisterUndo("Item Properties", db);
@@ -404,6 +407,7 @@ public class InvDatabaseInspector : Editor
 					item.iconName = iconName;
                     item.cost = cost;
                     item.unlimitedSupply = unlimitedSupply;
+                    item.twoHanded = twoHanded;
                     //item.minItemLevel = min;
                     //item.maxItemLevel = max;
 				}

@@ -28,6 +28,8 @@ public class Mountain : MonoBehaviour {
     public GameObject mineralPrefab;
     public GameObject monsterPrefab;
 
+    private float _timer;
+
     //public GameObject arrowChangeFace;
 
     void Awake()
@@ -48,6 +50,31 @@ public class Mountain : MonoBehaviour {
 
         // complete path generation in a coroutine
         StartCoroutine(RunPathGeneration());
+    }
+
+    void Update()
+    {
+        _timer += Time.deltaTime;
+        if (_timer > LevelParameters.Instance.mineralRefreshNumSeconds)
+        {
+            _timer = 0;
+            RegenMinerals();
+        }
+    }
+
+    public void RegenMinerals()
+    {
+        foreach (string faceKey in faces.Keys)
+        {
+            foreach (Tile tile in faces[faceKey])
+            {
+                if (tile.property == Tile.TileProperty.minerals)
+                {
+                    if (tile.currentYield < LevelParameters.Instance.initialMineralYield)
+                        tile.currentYield++;
+                }
+            }
+        }
     }
 
     /// <summary>
