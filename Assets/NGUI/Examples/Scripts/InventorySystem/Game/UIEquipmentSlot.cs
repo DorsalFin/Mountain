@@ -27,7 +27,7 @@ public class UIEquipmentSlot : UIItemSlot
 	/// Replace the observed item with the specified value. Should return the item that was replaced.
 	/// </summary>
 
-	override protected InvGameItem Replace (InvGameItem item)
+	override public InvGameItem Replace (InvGameItem item)
 	{
 		return (equipment != null) ? equipment.Replace(slot, item) : item;
 	}

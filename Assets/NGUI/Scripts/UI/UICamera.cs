@@ -111,6 +111,8 @@ public class UICamera : MonoBehaviour
 
 	static public OnScreenResize onScreenResize;
 
+    public Player controllingPlayer;
+
 	/// <summary>
 	/// Event type -- use "UI" for your user interfaces, and "World" for your game camera.
 	/// This setting changes how raycasts are handled. Raycasts have to be more complicated for UI cameras.
@@ -296,6 +298,8 @@ public class UICamera : MonoBehaviour
 	/// </summary>
 
 	static public KeyCode currentKey = KeyCode.None;
+
+    public GameObject _draggedFromObject = null;
 
 	/// <summary>
 	/// Ray projected into the screen underneath the current touch.
@@ -912,21 +916,6 @@ public class UICamera : MonoBehaviour
 	{
 		if (mNotifying) return;
 		mNotifying = true;
-
-//#region RHYS
-//        bool sellItemToShop = funcName == "OnDrop" && go != null && go.tag == "ItemShop";
-//        bool snapBackOnDrop = sellItemToShop == false && funcName == "OnDrop" && (go == null || go.tag != "ValidItemDrop");
-//        if (snapBackOnDrop)
-//        {
-//            GameObject itemObj = (GameObject)obj;
-//            //itemObj.GetComponent<InvGameItem>().SnapBackToSlot(); // can't get component on non monobehaviour
-
-//        }
-//        else if (sellItemToShop)
-//        {
-            
-//        }
-//#endregion
 
         if (NGUITools.GetActive(go))
 		{
@@ -1548,6 +1537,7 @@ public class UICamera : MonoBehaviour
 				}
 
 				Notify(currentTouch.dragged, "OnDrag", currentTouch.delta);
+                _draggedFromObject = currentTouch.dragged;
 
 				currentTouch.last = currentTouch.current;
 				isDragging = false;
@@ -1601,8 +1591,9 @@ public class UICamera : MonoBehaviour
 					}
 					else
 					{
-						mNextSelection = null;
-						mCurrentSelection = currentTouch.pressed;
+                        Notify(_draggedFromObject, "OnDrop", currentTouch.dragged);
+                        //mNextSelection = null;
+                        //mCurrentSelection = currentTouch.pressed;
 					}
 
 					// If the touch should consider clicks, send out an OnClick notification
@@ -1621,7 +1612,18 @@ public class UICamera : MonoBehaviour
 				}
 				else if (currentTouch.dragStarted) // The button/touch was released on a different object
 				{
-					Notify(currentTouch.current, "OnDrop", currentTouch.dragged);
+                    bool sellItemToShop = currentTouch.current != null && currentTouch.current.tag == "ItemInShop";
+
+                    bool transferBetweenInventories = currentTouch.current != null && currentTouch.current.tag == "ItemAtBase" && currentTouch.dragged != null && currentTouch.dragged.tag == "ItemOnPerson";
+                    if (!transferBetweenInventories) transferBetweenInventories = currentTouch.current != null && currentTouch.current.tag == "ItemOnPerson" && currentTouch.dragged != null && currentTouch.dragged.tag == "ItemAtBase";
+
+                    bool snapBackOnDrop = sellItemToShop == false && (currentTouch.current == null || ((!transferBetweenInventories && currentTouch.current.tag != currentTouch.dragged.tag) || (transferBetweenInventories && !controllingPlayer.IsInHomeTile)));
+                    if (sellItemToShop)
+                        Notify(currentTouch.current, "SellItem", currentTouch.dragged);
+                    else if (snapBackOnDrop)
+                        Notify(_draggedFromObject, "OnDrop", currentTouch.dragged);
+                    else
+                        Notify(currentTouch.current, "OnDrop", currentTouch.dragged);
 				}
 			}
 			currentTouch.dragStarted = false;

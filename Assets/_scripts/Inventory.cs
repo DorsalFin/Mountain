@@ -4,10 +4,11 @@ using System.Collections.Generic;
 
 public class Inventory : MonoBehaviour {
 
+    // TODO: put this into one of the other inventory scripts, probably InvEquipment
+
+
     private Player _player;
     public int currentCash;
-
-
 
     private int _itemSlotsAtBase = 4;
 
@@ -15,16 +16,6 @@ public class Inventory : MonoBehaviour {
     {
         _player = GetComponent<Player>();
         currentCash = LevelParameters.Instance.startingCash;
-    }
-
-    public void AddToInventory(InvGameItem item, bool onPerson)
-    {
-        
-    }
-
-    public void RemoveFromInventory(GameObject itemObj, bool onPerson)
-    {
-
     }
 
 }

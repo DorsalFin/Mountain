@@ -27,7 +27,7 @@ public class UIStorageSlot : UIItemSlot
 	/// Replace the observed item with the specified value. Should return the item that was replaced.
 	/// </summary>
 
-	override protected InvGameItem Replace (InvGameItem item)
+	override public InvGameItem Replace (InvGameItem item)
 	{
 		return (storage != null) ? storage.Replace(slot, item) : item;
 	}

@@ -76,7 +76,7 @@ public class Player : Character {
 
         Mountain.Instance.SetFaceVisibility(currentFace);
         closestTile = Mountain.Instance.GetHomeBaseTile(Mountain.Instance.faces[currentFace]);
-        movement.ClickedOnTile(Mountain.Instance.GetStartPositionTile(Mountain.Instance.faces[currentFace]));
+        //movement.ClickedOnTile(Mountain.Instance.GetStartPositionTile(Mountain.Instance.faces[currentFace]));
     }
 
     void Update()

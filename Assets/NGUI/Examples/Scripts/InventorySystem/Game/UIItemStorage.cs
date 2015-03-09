@@ -24,6 +24,8 @@ public class UIItemStorage : MonoBehaviour
 
     public Shop fromShop;
 
+    private string _currentCategory = "";
+
 	/// <summary>
 	/// Maximum size of the container. Adding more items than this number will not work.
 	/// </summary>
@@ -114,6 +116,7 @@ public class UIItemStorage : MonoBehaviour
 					GameObject go = NGUITools.AddChild(gameObject, template);
 					Transform t = go.transform;
 					t.localPosition = new Vector3(padding + (x + 0.5f) * spacing, -padding - (y + 0.5f) * spacing, 0f);
+                    t.tag = this.tag;
 
 					UIStorageSlot slot = go.GetComponent<UIStorageSlot>();
                     slot.storageType = storageType;
@@ -147,6 +150,7 @@ public class UIItemStorage : MonoBehaviour
     /// </summary>
     public void FillShopWithItems(string category)
     {
+        _currentCategory = category;
         int index = 0;
         foreach (InvBaseItem item in InvDatabase.list[0].items)
         {
@@ -164,12 +168,26 @@ public class UIItemStorage : MonoBehaviour
         }
     }
 
+    public void UpdateShopItems()
+    {
+        FillShopWithItems(_currentCategory);
+    }
+
     public bool AddItemToStorage(InvGameItem item)
     {
         int currentItemsInStorage = GetCountOfItemsOnDisplay();
         if (currentItemsInStorage < maxItemCount)
         {
-            Replace(currentItemsInStorage, item);
+            int emptyIndex = 99;
+            for (int i = 0; i < mItems.Count; i++)
+            {
+                if (mItems[i] == null)
+                {
+                    emptyIndex = i;
+                    break;
+                }
+            }
+            Replace(emptyIndex, item);
             item.location = storageType;
             return true;
         }

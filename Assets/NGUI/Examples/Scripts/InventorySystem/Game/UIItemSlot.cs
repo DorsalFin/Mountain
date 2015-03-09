@@ -30,6 +30,7 @@ public abstract class UIItemSlot : MonoBehaviour
 
     public UIItemStorage.Location storageType;
     public UIItemStorage fromStorage;
+    public Player controllingPlayer;
 
 	/// <summary>
 	/// This function should return the item observed by this UI class.
@@ -41,7 +42,13 @@ public abstract class UIItemSlot : MonoBehaviour
 	/// Replace the observed item with the specified value. Should return the item that was replaced.
 	/// </summary>
 
-	abstract protected InvGameItem Replace (InvGameItem item);
+	abstract public InvGameItem Replace (InvGameItem item);
+
+    void Start()
+    {
+        if (fromStorage != null)
+            controllingPlayer = fromStorage.fromShop.player;
+    }
 
 	/// <summary>
 	/// Show a tooltip for the item.
@@ -98,36 +105,44 @@ public abstract class UIItemSlot : MonoBehaviour
 	{
 		if (mDraggedItem != null)
 		{
-            if (storageType == UIItemStorage.Location.Shop)
-            {
-                Debug.Log("TODO: sell item to shop here");
-            }
-            else
-                OnDrop(null);
+            OnDrop(null);
 		}
 		else if (mItem != null)
 		{
+            // left click
             if (UICamera.currentTouchID == -1)
             {
                 if (mItem.location == UIItemStorage.Location.Shop)
                 {
                     Debug.Log("TODO: show item details in shop");
                 }
-                else
+                else // item is not in shop
                 {
-                    mDraggedItem = Replace(null);
-                    if (mDraggedItem != null) NGUITools.PlaySound(grabSound);
-                    UpdateCursor();
+                    if (mItem.baseItem.slot == InvBaseItem.Slot.Trinket)
+                    {
+                        Debug.Log("TODO: select this item for use");
+                    }
+                    //else
+                    //{
+                    //    mDraggedItem = Replace(null);
+                    //    if (mDraggedItem != null) NGUITools.PlaySound(grabSound);
+                    //    UpdateCursor();
+                    //}
                 }
             }
+            // right click
             else if (UICamera.currentTouchID == -2)
             {
-                Player buyer = mItem.FromShop.player;
-                bool successfulPurchase = buyer.PurchaseItem(mItem);
-                if (successfulPurchase && !mItem.baseItem.unlimitedSupply)
+                if (mItem.location == UIItemStorage.Location.Shop)
                 {
-                    mItem.baseItem.sold = true;
-                    Replace(null);
+                    Player buyer = mItem.FromShop.player;
+                    bool successfulPurchase = buyer.PurchaseItem(mItem);
+                    if (successfulPurchase && !mItem.baseItem.unlimitedSupply)
+                    {
+                        mItem.baseItem.sold = true;
+                        Replace(null);
+                        fromStorage.UpdateShopItems();
+                    }
                 }
             }
 		}
@@ -162,33 +177,34 @@ public abstract class UIItemSlot : MonoBehaviour
 
 	void OnDrop (GameObject go)
 	{
+        if (mDraggedItem == null) return;
+
         bool allowed = mDraggedItem.location == storageType;
         if (mDraggedItem.location != storageType)
-        {
-            Player player = null;
-            // if this in a equipment slot then we have no reference
-            if (this is UIEquipmentSlot)
-            {
-                UIEquipmentSlot eqSlot = (UIEquipmentSlot)this;
-                player = eqSlot.equipment.player;
-            }
-            else
-                player = fromStorage.fromShop.player;
-
-            allowed = player.IsInHomeTile;
-        }
+            allowed = controllingPlayer.IsInHomeTile;
 
         if (allowed)
         {
             InvGameItem item = Replace(mDraggedItem);
             mDraggedItem.location = storageType;
-            if (mDraggedItem == item) NGUITools.PlaySound(errorSound);
-            else if (item != null) NGUITools.PlaySound(grabSound);
+            if (mDraggedItem == item)
+            {
+                Debug.Log("TODO: snap back to original drag position here");
+            }
+            else if (item != null)
+            {
+                Debug.Log("TODO: swap item positions instead of picking up a new one");
+            }
             else NGUITools.PlaySound(placeSound);
             mDraggedItem = item;
             UpdateCursor();
         }
 	}
+
+    void SellItem()
+    {
+        Debug.Log("TODO: selling of items");
+    }
 
 	/// <summary>
 	/// Set the cursor to the icon of the item being dragged.
