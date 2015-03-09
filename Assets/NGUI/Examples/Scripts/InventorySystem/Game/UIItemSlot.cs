@@ -114,14 +114,14 @@ public abstract class UIItemSlot : MonoBehaviour
             {
                 if (mItem.location == UIItemStorage.Location.Shop)
                 {
+                    // TODO display item details in shop
                     Debug.Log("TODO: show item details in shop");
                 }
                 else // item is not in shop
                 {
-                    if (mItem.baseItem.slot == InvBaseItem.Slot.Trinket)
-                    {
-                        Debug.Log("TODO: select this item for use");
-                    }
+                    if (mItem.baseItem.slot == InvBaseItem.Slot.Trinket || mItem.location == UIItemStorage.Location.AtBase)
+                        controllingPlayer.SelectOrDeselectItem(mItem, background);
+
                     //else
                     //{
                     //    mDraggedItem = Replace(null);
@@ -150,6 +150,7 @@ public abstract class UIItemSlot : MonoBehaviour
 
     void OnHover(bool isOver)
     {
+        // TODO item tooltips.. ?
         if (isOver)
             OnTooltip(true);
         else
@@ -164,6 +165,7 @@ public abstract class UIItemSlot : MonoBehaviour
 	{
         if (mDraggedItem == null && mItem != null && mItem.location != UIItemStorage.Location.Shop) // can't drag things in the shop
         {
+            controllingPlayer.SelectOrDeselectItem(null, null);
             UICamera.currentTouch.clickNotification = UICamera.ClickNotification.BasedOnDelta;
             mDraggedItem = Replace(null);
             NGUITools.PlaySound(grabSound);
@@ -187,22 +189,25 @@ public abstract class UIItemSlot : MonoBehaviour
         {
             InvGameItem item = Replace(mDraggedItem);
             mDraggedItem.location = storageType;
-            if (mDraggedItem == item)
+            if (mDraggedItem == item || item != null)
             {
-                Debug.Log("TODO: snap back to original drag position here");
+                UIItemSlot previousSlot = UICamera.DraggedFromSlot.GetComponent<UIItemSlot>();
+                previousSlot.Replace(item);
+                mDraggedItem = null;
+                UpdateCursor();
             }
-            else if (item != null)
+            else
             {
-                Debug.Log("TODO: swap item positions instead of picking up a new one");
+                NGUITools.PlaySound(placeSound);
+                mDraggedItem = item;
+                UpdateCursor();
             }
-            else NGUITools.PlaySound(placeSound);
-            mDraggedItem = item;
-            UpdateCursor();
         }
 	}
 
     void SellItem()
     {
+        // TODO selling of items
         Debug.Log("TODO: selling of items");
     }
 

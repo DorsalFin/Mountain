@@ -299,7 +299,8 @@ public class UICamera : MonoBehaviour
 
 	static public KeyCode currentKey = KeyCode.None;
 
-    public GameObject _draggedFromObject = null;
+    static private GameObject _draggedFromObject = null;
+    static public GameObject DraggedFromSlot { get { return _draggedFromObject; } }
 
 	/// <summary>
 	/// Ray projected into the screen underneath the current touch.

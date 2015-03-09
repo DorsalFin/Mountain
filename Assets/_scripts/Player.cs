@@ -21,6 +21,29 @@ public class Player : Character {
     private Inventory _inventory;
     public Inventory GetInventory { get { return _inventory; } }
 
+
+    private InvGameItem _selectedItem;
+    private UIWidget _selectedItemBackground;
+    public void SelectOrDeselectItem(InvGameItem item, UIWidget background)
+    {
+        if (_selectedItem == item || item == null)
+        {
+            if (_selectedItemBackground != null)
+                _selectedItemBackground.color = Color.black;
+            _selectedItem = null;
+            _selectedItemBackground = null;
+        }
+        // new selection
+        else if (_selectedItem == null || _selectedItem != item)
+        {
+            if (_selectedItemBackground != null)
+                _selectedItemBackground.color = Color.black;
+            _selectedItem = item;
+            _selectedItemBackground = background;
+            _selectedItemBackground.color = Color.cyan;
+        }
+    }
+
     // packmule vars
     private Vector3 _initialSpawnPosition;
     public GameObject packmulePrefab;

@@ -67,7 +67,7 @@ public class Tile {
     {
         currentYield -= amount;
 
-        // TODO: update some kind of mineral graphic
+        // TODO update some kind of mineral graphic
     }
 
     public void ForceProperty(TileProperty tileProperty)

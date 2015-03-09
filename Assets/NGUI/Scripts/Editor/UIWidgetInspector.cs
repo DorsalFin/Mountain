@@ -1062,7 +1062,6 @@ public class UIWidgetInspector : UIRectEditor
 
 		if (pv.hasMultipleDifferentValues)
 		{
-			// TODO: Doing this doesn't keep the widget's position where it was. Another approach is needed.
 			NGUIEditorTools.DrawProperty("Pivot", so, "mPivot");
 		}
 		else
