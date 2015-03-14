@@ -54,6 +54,8 @@ public class Movement : MonoBehaviour {
                 foreach (Tile t in _pathToTargetTile)
                     pathlinePoints.Add(t.tileTransform.position);
             }
+            if (character.objectToAction != null)
+                pathlinePoints.Add(character.objectToAction.transform.position);
 
             _pathLine.points3.Clear();
             _pathLine.points3.AddRange(pathlinePoints);

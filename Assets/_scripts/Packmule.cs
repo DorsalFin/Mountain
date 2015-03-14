@@ -13,7 +13,8 @@ public class Packmule : Character {
         Null = 0,
         ResourceGatherer = 1,
         ItemDeliverer = 2,
-        Explorer = 3
+        Explorer = 3,
+        BlockageClearer = 4
     }
     public MuleType muleType;
 
@@ -58,14 +59,19 @@ public class Packmule : Character {
     public void SetMuleType(Player owner, Tile tileGoal, MuleType forcedType = MuleType.Null)
     {
         _owner = owner;
+        if (forcedType != MuleType.Null)
+        {
+            muleType = forcedType;
+            return;
+        }
 
         Tile.TileProperty property = tileGoal.property;
-        if (property == Tile.TileProperty.minerals || forcedType == MuleType.ResourceGatherer)
+        if (property == Tile.TileProperty.minerals)
         {
             muleType = MuleType.ResourceGatherer;
             _resourceGatheringTime = _owner.packmuleResourceGatheringTime;
         }
-        else if (property == Tile.TileProperty.empty || forcedType == MuleType.Explorer)
+        else if (property == Tile.TileProperty.empty)
         {
             muleType = MuleType.Explorer;
         }
@@ -88,6 +94,9 @@ public class Packmule : Character {
                 case MuleType.Explorer:
                     ReturnHome();
                     break;
+                case MuleType.BlockageClearer:
+                    actionToProcess = ActionType.clearBlockage;
+                    break;
             }
         }
 
@@ -95,7 +104,7 @@ public class Packmule : Character {
             FinishedJourney();
     }
 
-    public void ReturnHome()
+    public override void ReturnHome()
     {
         _returningHome = true;
         movement.ClickedOnTile(Mountain.Instance.GetHomeBaseTile(Mountain.Instance.faces[currentFace]));

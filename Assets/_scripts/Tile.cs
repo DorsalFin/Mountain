@@ -134,16 +134,24 @@ public class Tile {
                 continue;
             }
 
-            //bool fullPath = Mountain.Instance.GetConnectionTypeBetweenTiles(Mountain.Instance.faces[face], this, i, false) == 2;
+            int pathType = Mountain.Instance.GetConnectionTypeBetweenTiles(this, i, neighbor);
 
             if (selectedPathOnly == 99 || selectedPathOnly == i)
+                tileTransform.parent.Find(GetStringForDirection(i)).gameObject.SetActive(reveal && pathType != 0);
+
+            // if it's a full path then show the other half
+            if (pathType != 0)
+                neighbor.tileTransform.parent.Find(GetStringForDirection(Mountain.Instance.GetOpposingDirection(i))).gameObject.SetActive(reveal);
+
+            // if it's a half path...
+            if (pathType == 1 && reveal)
             {
-                // if it's half a path - boulder
-                //if (!fullPath)
-                //    Mountain.Instance.CreateBoulder(tileTransform, neighbor.tileTransform);
-                // else its a full path
-                //else
-                    tileTransform.parent.Find(GetStringForDirection(i)).gameObject.SetActive(openPaths[i] == 1 && reveal);
+                // first make sure this rock is not already displayed
+                if (neighbor.revealed)
+                    continue;
+
+                // otherwise notify the mountain it needs to instantiate a barrier between these tiles
+                Mountain.Instance.CreateBarrierBetweenTiles(this, i, neighbor);
             }
         }
     }

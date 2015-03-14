@@ -21,7 +21,6 @@ public class Player : Character {
     private Inventory _inventory;
     public Inventory GetInventory { get { return _inventory; } }
 
-
     private InvGameItem _selectedItem;
     private UIWidget _selectedItemBackground;
     public void SelectOrDeselectItem(InvGameItem item, UIWidget background)
@@ -122,8 +121,47 @@ public class Player : Character {
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit))
             {
+                // LEFT CLICKED THE SHOP
                 if (hit.collider.tag == "ItemShop" && leftClick)
                     playerUI.ShopClicked();
+
+                // LEFT CLICKED SOME BLOCKAGE
+                else if (hit.collider.tag == "Blockage" && _selectedItem != null && _selectedItem.baseItem.name == "spade")
+                {
+                    Debug.Log("TODO finish clear blockage");
+
+                    Blockage blockage = hit.collider.GetComponent<Blockage>();
+
+                    // first step is to make our way to the tile so let's check if we are already there
+                    //if (blockage.tileOne != closestTile && blockage.tileTwo != closestTile)
+                    //{
+                        // if we AREN'T there, then we should pick the tile with the blockage which has the least amount of steps
+                        List<Tile> pathToTileOne = Mountain.Instance.GetPathBetweenTiles(currentFace, leftClick ? closestTile : Mountain.Instance.GetStartPositionTile(Mountain.Instance.faces[currentFace]), blockage.tileOne);
+                        List<Tile> pathToTileTwo = Mountain.Instance.GetPathBetweenTiles(currentFace, leftClick ? closestTile : Mountain.Instance.GetStartPositionTile(Mountain.Instance.faces[currentFace]), blockage.tileTwo);
+                        Tile leastDistanceTile = pathToTileOne != null && pathToTileTwo != null && pathToTileTwo.Count < pathToTileOne.Count ? blockage.tileTwo : blockage.tileOne;
+
+                        if (leftClick)
+                        {
+                            if (blockage.tileOne != closestTile && blockage.tileTwo != closestTile)
+                            {
+                                clickedOnTile = leastDistanceTile;
+                                if (clickedOnTile != null)
+                                {
+                                    objectToAction = blockage.gameObject;
+                                    // and then start our player moving toward it
+                                    movement.ClickedOnTile(clickedOnTile);
+                                }
+                            }
+                        }
+                        else if (packmulesWaiting > 0)
+                        {
+                            Packmule packmule = SpawnPackmule(leastDistanceTile, Packmule.MuleType.BlockageClearer);
+                            packmule.objectToAction = blockage.gameObject;
+                        }
+                    //}
+                }
+
+                // LEFT CLICKED ANYTHING ELSE
                 else
                 {
                     // don't accept movement clicks when shop is open
@@ -167,16 +205,20 @@ public class Player : Character {
         _playerCamera.ChangeFaceFocus(toRotate);
     }
 
-    void SpawnPackmule(Tile target)
+    Packmule SpawnPackmule(Tile target, Packmule.MuleType forcedMuleType = Packmule.MuleType.Null)
     {
         packmulesWaiting--;
         GameObject mule = (GameObject)Instantiate(packmulePrefab, _initialSpawnPosition, Quaternion.identity);
         Packmule packmule = mule.GetComponent<Packmule>();
         packmule.currentFace = this.currentFace;
         packmule.closestTile = null;
-        packmule.SetMuleType(this, target, target.revealed ? Packmule.MuleType.Null : Packmule.MuleType.Explorer);
+        if (forcedMuleType == Packmule.MuleType.Null)
+            packmule.SetMuleType(this, target, target.revealed ? Packmule.MuleType.Null : Packmule.MuleType.Explorer);
+        else
+            packmule.SetMuleType(this, target, forcedMuleType);
         packmule.movement.ClickedOnTile(target);
         currentPackmules.Add(packmule);
+        return packmule;
     }
 
     public void ToggleChangeFaceArrow(int direction, bool show)

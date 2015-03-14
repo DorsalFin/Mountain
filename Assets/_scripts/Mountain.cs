@@ -10,9 +10,6 @@ public class Mountain : MonoBehaviour {
     public const int RIGHT = 3;
     public const int BOTTOM_LEFT = 4;
     public const int BOTTOM_RIGHT = 5;
-    // shoehorned in paths between top and bottom tiles
-    public const int TOP = 6;
-    public const int BOTTOM = 7;
 
     public static Mountain Instance;
     /// <summary>
@@ -27,6 +24,9 @@ public class Mountain : MonoBehaviour {
     public Vector3 tilePropertyOffset;
     public GameObject mineralPrefab;
     public GameObject monsterPrefab;
+
+    // path blockage prefab
+    public GameObject blockagePrefab;
 
     private float _timer;
 
@@ -191,6 +191,32 @@ public class Mountain : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// simple function that adds up the openPath ints
+    /// </summary>
+    /// <returns>0 for no path, 1 for half path, 2 for full path</returns>
+    public int GetConnectionTypeBetweenTiles(Tile startTile, int direction, Tile endTile)
+    {
+        return startTile.openPaths[direction] + endTile.openPaths[GetOpposingDirection(direction)];
+    }
+
+    public void CreateBarrierBetweenTiles(Tile tile1, int directionFromTile1, Tile tile2)
+    {
+        Vector3 middle = Vector3.Lerp(tile1.tileTransform.parent.position, tile2.tileTransform.parent.position, 0.5f);
+        Vector3 dir = (tile2.tileTransform.position - tile1.tileTransform.position).normalized;
+        
+        GameObject b = (GameObject)Instantiate(blockagePrefab, middle, Quaternion.LookRotation(dir));
+
+        // less gap between horizontal tiles so make the blockage a bit smaller
+        if (tile1.y == tile2.y)
+            b.transform.localScale = Vector3.one * 0.35f;
+
+        Blockage blockage = b.AddComponent<Blockage>();
+        blockage.tileOne = tile1;
+        blockage.directionFromTileOne = directionFromTile1;
+        blockage.tileTwo = tile2;
+    }
+
     public void SetAllTilesDisplayedState(bool reveal)
     {
         foreach (Transform faceTrans in faceTransforms)
@@ -249,7 +275,7 @@ public class Mountain : MonoBehaviour {
     /// <param name="startTile"></param>
     /// <param name="endTile"></param>
     /// <param name="directionFromStart"></param>
-    void OpenPathBetweenTiles(Tile startTile, Tile endTile, int directionFromStart)
+    public void OpenPathBetweenTiles(Tile startTile, Tile endTile, int directionFromStart)
     {
         Debug.Log("Opening " +startTile.face +" path between " + startTile.y + "/" + startTile.x + " and " + endTile.y + "/" + endTile.x 
                         +" ... opening start tile's " +GetStringForDirection(directionFromStart).ToUpper() +" and opening end tile's " +GetStringForDirection(GetOpposingDirection(directionFromStart)).ToUpper());
@@ -431,7 +457,7 @@ public class Mountain : MonoBehaviour {
         return false;
     }
 
-    int GetOpposingDirection(int direction)
+    public int GetOpposingDirection(int direction)
     {
         if (direction == TOP_LEFT)
             return BOTTOM_RIGHT;
@@ -586,13 +612,16 @@ public class Mountain : MonoBehaviour {
         if (tile.revealed)
             return;
 
+        // display all paths leading from the arrived at tile
         tile.DisplayPaths(true);
-        List<Tile> connectedTiles = GetConnectedTiles(faces[tile.face], tile);
-        foreach (Tile connectedTile in connectedTiles)
-            connectedTile.DisplayPaths(true, GetDirectionFromTileToTile(connectedTile, tile));
-
         tile.revealed = true;
         tile.sprite.color = Color.white;
+
+        // display second half of paths if a full path exists
+        //List<Tile> connectedTiles = GetConnectedTiles(faces[tile.face], tile);
+        //foreach (Tile connectedTile in connectedTiles)
+        //    connectedTile.DisplayPaths(true, GetDirectionFromTileToTile(connectedTile, tile));
+
         switch (tile.property)
         {
             case Tile.TileProperty.minerals:
