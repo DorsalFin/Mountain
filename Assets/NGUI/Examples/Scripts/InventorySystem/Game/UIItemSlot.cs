@@ -114,8 +114,6 @@ public abstract class UIItemSlot : MonoBehaviour
             {
                 if (mItem.location == UIItemStorage.Location.Shop)
                 {
-                    // TODO display item details in shop
-                    Debug.Log("TODO: show item details in shop");
                 }
                 else // item is not in shop
                 {
@@ -150,7 +148,6 @@ public abstract class UIItemSlot : MonoBehaviour
 
     void OnHover(bool isOver)
     {
-        // TODO item tooltips.. ?
         if (isOver)
             OnTooltip(true);
         else
@@ -204,12 +201,6 @@ public abstract class UIItemSlot : MonoBehaviour
             }
         }
 	}
-
-    void SellItem()
-    {
-        // TODO selling of items
-        Debug.Log("TODO: selling of items");
-    }
 
 	/// <summary>
 	/// Set the cursor to the icon of the item being dragged.

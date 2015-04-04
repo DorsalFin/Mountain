@@ -4,9 +4,6 @@ using System.Collections.Generic;
 
 public class Inventory : MonoBehaviour {
 
-    // TODO: put this into one of the other inventory scripts, probably InvEquipment
-
-
     private Player _player;
     public int currentCash;
 

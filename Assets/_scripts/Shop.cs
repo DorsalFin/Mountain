@@ -5,8 +5,6 @@ using Vectrosity;
 
 public class Shop : MonoBehaviour {
 
-    // TODO is this class neccessary?
-
     public UIGrid itemGrid;
     public GameObject shopItemPrefab;
     private string _currentlyDisplayingCategory;

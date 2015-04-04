@@ -80,11 +80,6 @@ public class Packmule : Character {
         }
     }
 
-    //public override void UseItem()
-    //{
-    //    // TODO mule using items
-    //}
-
     public override void GoalReached()
     {
         bool homeThisTurn = _returningHome;

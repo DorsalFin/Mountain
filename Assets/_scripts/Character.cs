@@ -95,7 +95,6 @@ public class Character : MonoBehaviour {
             //        return;
             //    }
 
-            //    // TODO make this counter reset when leaving action half done
             //    _turnCounter++;
 
             //    if (_turnCounter == turnsToClearBlockage)
