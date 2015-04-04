@@ -119,8 +119,8 @@ public abstract class UIItemSlot : MonoBehaviour
                 }
                 else // item is not in shop
                 {
-                    if (mItem.baseItem.slot == InvBaseItem.Slot.Trinket || mItem.location == UIItemStorage.Location.AtBase)
-                        controllingPlayer.SelectOrDeselectItem(mItem, background);
+                    //if (mItem.baseItem.slot == InvBaseItem.Slot.Trinket || mItem.location == UIItemStorage.Location.AtBase)
+                        //controllingPlayer.SelectOrDeselectItem(mItem, background, this);
 
                     //else
                     //{
@@ -135,14 +135,14 @@ public abstract class UIItemSlot : MonoBehaviour
             {
                 if (mItem.location == UIItemStorage.Location.Shop)
                 {
-                    Player buyer = mItem.FromShop.player;
-                    bool successfulPurchase = buyer.PurchaseItem(mItem);
-                    if (successfulPurchase && !mItem.baseItem.unlimitedSupply)
-                    {
-                        mItem.baseItem.sold = true;
-                        Replace(null);
-                        fromStorage.UpdateShopItems();
-                    }
+                    //Player buyer = mItem.FromShop.player;
+                    //bool successfulPurchase = buyer.PurchaseItem(mItem);
+                    //if (successfulPurchase && !mItem.baseItem.unlimitedSupply)
+                    //{
+                    //    mItem.baseItem.sold = true;
+                    //    Replace(null);
+                    //    fromStorage.UpdateShopItems();
+                    //}
                 }
             }
 		}
@@ -165,7 +165,7 @@ public abstract class UIItemSlot : MonoBehaviour
 	{
         if (mDraggedItem == null && mItem != null && mItem.location != UIItemStorage.Location.Shop) // can't drag things in the shop
         {
-            controllingPlayer.SelectOrDeselectItem(null, null);
+            //controllingPlayer.SelectOrDeselectItem(null, null, null);
             UICamera.currentTouch.clickNotification = UICamera.ClickNotification.BasedOnDelta;
             mDraggedItem = Replace(null);
             NGUITools.PlaySound(grabSound);

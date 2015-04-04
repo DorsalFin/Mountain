@@ -18,11 +18,9 @@ public class Movement : MonoBehaviour {
 
     void Start()
     {
-        //selectionLine = new VectorLine("Selection", new Vector2[5], lineMaterial, 4.0, LineType.Continuous, Joins.Fill);
-        //selectionLine.textureScale = textureScale;
         _pathLine = new VectorLine("pathLine", new List<Vector3>(), pathLineMaterial, 6.0f, LineType.Continuous, Joins.Fill);
         _pathLine.textureScale = 2.0f;
-    }
+    }       
 
     public void ActionMovement()
     {
@@ -36,33 +34,41 @@ public class Movement : MonoBehaviour {
         isMoving = true;
     }
 
+    public Tile GetTargetTile()
+    {
+        if (_upcomingPathToTargetTile.Count == 0 && _pathToTargetTile.Count == 0)
+            return character.closestTile;
+        else return _upcomingPathToTargetTile.Count > 0 ? _upcomingPathToTargetTile[_upcomingPathToTargetTile.Count - 1] : _pathToTargetTile[_pathToTargetTile.Count - 1];
+    }
+
+    /// <summary>
+    /// get the next tile the character is moving to, will return closest tile if none in path
+    /// </summary>
+    public Tile GetNextTile()
+    {
+        if (_pathToTargetTile.Count > 0 && isMoving)
+            return _pathToTargetTile[0];
+        else if (_pathToTargetTile.Count > 0 && !isMoving)
+            return character.closestTile;
+
+        // i shouldn't ever have to check upcoming path since it is wiped as soon as isMoving becomes true
+        return character.closestTile;
+    }
+
+    public void SetNextTileAsTarget()
+    {
+        _generatingPath = false;
+        _upcomingPathToTargetTile.Clear();
+        _pathToTargetTile.RemoveRange(1, _pathToTargetTile.Count - 1);
+    }
+
     void Update()
     {
         // movement
-        if (_pathToTargetTile.Count > 0 || _upcomingPathToTargetTile.Count > 0)
+        if (_pathToTargetTile.Count > 0 || _upcomingPathToTargetTile.Count > 0) //|| character.objectToAction != null)
         {
-            // update the points of the movement path line and draw it
-            List<Vector3> pathlinePoints = new List<Vector3>();
-            pathlinePoints.Add(transform.position);
-            if (_upcomingPathToTargetTile.Count > 0)
-            {
-                foreach (Tile t in _upcomingPathToTargetTile)
-                    pathlinePoints.Add(t.tileTransform.position);
-            }
-            else
-            {
-                foreach (Tile t in _pathToTargetTile)
-                    pathlinePoints.Add(t.tileTransform.position);
-            }
-            if (character.objectToAction != null)
-                pathlinePoints.Add(character.objectToAction.transform.position);
-
-            _pathLine.points3.Clear();
-            _pathLine.points3.AddRange(pathlinePoints);
-            //_pathLine.endCap = "endCap";
-            _pathLine.Draw3D();
-            if (!_pathLine.active)
-                _pathLine.active = true;
+            // update the path visual representation
+            UpdatePath();
 
             if (isMoving)
             {
@@ -88,17 +94,12 @@ public class Movement : MonoBehaviour {
                     Mountain.Instance.ArrivedAtTile(character, tileTarget);
 
                 // CLOSEST DISTANCE ///// set _moving state ////////////////
-                if (distanceToTargetTile < 0.05f)
+                if (distanceToTargetTile < 0.025f)
                 {
                     isMoving = false;
                     ProgressMovementOnPath();
                 }
             }
-        }
-        else
-        {
-            if (_pathLine.active)
-                _pathLine.active = false;
         }
 
         if (character is Player)
@@ -119,25 +120,88 @@ public class Movement : MonoBehaviour {
         }
     }
 
+    public void UpdatePath()
+    {
+        // refresh points of path
+        List<Vector3> pathlinePoints = new List<Vector3>();
+
+        // add the character position to start our line
+        pathlinePoints.Add(transform.position);
+
+        // populate with the appropriate path list
+        // if we have an UPCOMING PATH then we draw that
+        // if we DON'T have an upcoming path draw the path we are currently moving on
+        if (_upcomingPathToTargetTile.Count > 0)
+        {
+            // this path should always contain the tile we are currently moving toward
+            // at the start
+            if (_pathToTargetTile.Count > 0)
+            {
+                Tile currentTargetTile = _pathToTargetTile[0];
+                if (isMoving && !_upcomingPathToTargetTile.Contains(currentTargetTile))
+                {
+                    // the upcoming path we are about to draw does not have the 
+                    // tile we are currently moving toward, so let's add it straight
+                    // after the character's transform
+                    pathlinePoints.Add(currentTargetTile.tileTransform.position);
+                }
+            }
+
+            foreach (Tile t in _upcomingPathToTargetTile)
+                pathlinePoints.Add(t.tileTransform.position);
+        }
+        else
+        {
+            foreach (Tile t in _pathToTargetTile)
+                pathlinePoints.Add(t.tileTransform.position);
+        }
+
+        // add the object to action to the end of the list
+        //if (character.objectToAction != null)
+        //    pathlinePoints.Add(character.objectToAction.transform.position);
+
+        _pathLine.points3.Clear();
+        _pathLine.points3.AddRange(pathlinePoints);
+        //_pathLine.endCap = "endCap";
+        _pathLine.Draw3D();
+    }
+
+    public void ClearPaths(bool update)
+    {
+        _generatingPath = false;
+        _upcomingPathToTargetTile.Clear();
+        _pathToTargetTile.Clear();
+
+        if (update) UpdatePath();
+    }
+
     void ProgressMovementOnPath()
     {
         _pathToTargetTile.RemoveAt(0);
         if (_pathToTargetTile.Count > 0)
+        {
+            if (_generatingPath)
+            {
+                _generatingPath = false;
+                _pathToTargetTile.Clear();
+                _pathToTargetTile.AddRange(_upcomingPathToTargetTile);
+                _upcomingPathToTargetTile.Clear();
+            }
             character.actionToProcess = Character.ActionType.movement;
+        }
         else
         {
-            // destination reached
-            if (character is Packmule)
-            {
-                Packmule packmule = character as Packmule;
-                packmule.GoalReached();
-            }
+            if (GetTargetTile() == character.closestTile)
+                character.GoalReached();
         }
     }
 
     public void ClickedOnTile(Tile clickedOnTile)
     {
-        List<Tile> path = Mountain.Instance.GetPathBetweenTiles(character.currentFace, character.closestTile, clickedOnTile);
+        // from closest tile if we aren't moving, otherwise from the destination tile
+        Tile startTile = GetNextTile();
+
+        List<Tile> path = Mountain.Instance.GetPathBetweenTiles(character.currentFace, startTile, clickedOnTile);
         if (path != null)
         {
             _upcomingPathToTargetTile = path;

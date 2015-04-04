@@ -23,25 +23,6 @@ public class Player : Character {
 
     private InvGameItem _selectedItem;
     private UIWidget _selectedItemBackground;
-    public void SelectOrDeselectItem(InvGameItem item, UIWidget background)
-    {
-        if (_selectedItem == item || item == null)
-        {
-            if (_selectedItemBackground != null)
-                _selectedItemBackground.color = Color.black;
-            _selectedItem = null;
-            _selectedItemBackground = null;
-        }
-        // new selection
-        else if (_selectedItem == null || _selectedItem != item)
-        {
-            if (_selectedItemBackground != null)
-                _selectedItemBackground.color = Color.black;
-            _selectedItem = item;
-            _selectedItemBackground = background;
-            _selectedItemBackground.color = Color.cyan;
-        }
-    }
 
     // packmule vars
     private Vector3 _initialSpawnPosition;
@@ -64,6 +45,7 @@ public class Player : Character {
         VectorLine.canvas3D.gameObject.layer = LayerMask.NameToLayer("VectorLines");
     }
 
+#region OVERRIDES
     public override bool ShouldDisplayPaths()
     {
         if (playerUI.shop.gameObject.activeSelf)
@@ -72,22 +54,52 @@ public class Player : Character {
         return true;
     }
 
-    public bool PurchaseItem(InvGameItem item)
-    {
-        // if we have enough funds...
-        if (_inventory.currentCash >= item.baseItem.cost)
-        {
-            // try add to item storage - will return false if no room
-            bool successfullyAdded = playerUI.inBaseInventory.AddItemToStorage(item);
-            if (successfullyAdded)
-            {
-                // minus the money
-                _inventory.currentCash -= item.baseItem.cost;
-                return true;
-            }
-        }
-        return false;
-    }
+    //public override void UseItem()
+    //{
+    //    // check if selected item is this one, and if so clear it
+
+    //    itemSlotToUse.Replace(null);
+    //    itemSlotToUse.background.color = Color.black;
+    //}
+#endregion
+
+    //public void SelectOrDeselectItem(InvGameItem item, UIWidget background, UIItemSlot slot)
+    //{
+    //    if (_selectedItem == item || item == null)
+    //    {
+    //        if (_selectedItemBackground != null)
+    //            _selectedItemBackground.color = Color.black;
+    //        _selectedItem = null;
+    //        _selectedItemBackground = null;
+    //    }
+    //    // new selection
+    //    else if (_selectedItem == null || _selectedItem != item)
+    //    {
+    //        if (_selectedItemBackground != null)
+    //            _selectedItemBackground.color = Color.black;
+    //        _selectedItem = item;
+    //        _selectedItemBackground = background;
+    //        _selectedItemBackground.color = Color.cyan;
+    //        itemSlotToUse = slot;
+    //    }
+    //}
+
+    //public bool PurchaseItem(InvGameItem item)
+    //{
+    //    // if we have enough funds...
+    //    if (_inventory.currentCash >= item.baseItem.cost)
+    //    {
+    //        // try add to item storage - will return false if no room
+    //        bool successfullyAdded = playerUI.inBaseInventory.AddItemToStorage(item);
+    //        if (successfullyAdded)
+    //        {
+    //            // minus the money
+    //            _inventory.currentCash -= item.baseItem.cost;
+    //            return true;
+    //        }
+    //    }
+    //    return false;
+    //}
 
     public bool IsInHomeTile { get { return closestTile.x == -1; } }
 
@@ -116,6 +128,14 @@ public class Player : Character {
         if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
         {
             bool leftClick = Input.GetMouseButtonDown(0);
+            bool rightClick = Input.GetMouseButtonDown(1);
+
+            // clear any actions if we direct the player elsewhere
+            if (leftClick && actionToProcess != ActionType.none)
+            {
+                actionToProcess = ActionType.none;
+                //objectToAction = null;
+            }
 
             Ray ray = _playerCamera.playerMainCamera.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
@@ -125,43 +145,50 @@ public class Player : Character {
                 if (hit.collider.tag == "ItemShop" && leftClick)
                     playerUI.ShopClicked();
 
-                // LEFT CLICKED SOME BLOCKAGE
-                else if (hit.collider.tag == "Blockage" && _selectedItem != null && _selectedItem.baseItem.name == "spade")
-                {
-                    Debug.Log("TODO finish clear blockage");
+                // CLICKED SOME BLOCKAGE
+                //else if (hit.collider.tag == "Blockage" && _selectedItem != null && _selectedItem.baseItem.name == "spade" &&
+                //    (rightClick || (leftClick && _selectedItem.location == UIItemStorage.Location.OnPerson)))
+                //{
 
-                    Blockage blockage = hit.collider.GetComponent<Blockage>();
+                    //Blockage blockage = hit.collider.GetComponent<Blockage>();
 
-                    // first step is to make our way to the tile so let's check if we are already there
-                    //if (blockage.tileOne != closestTile && blockage.tileTwo != closestTile)
+                    //// if we AREN'T there, then we should pick the tile with the blockage which has the least amount of steps
+                    //List<Tile> pathToTileOne = Mountain.Instance.GetPathBetweenTiles(currentFace, leftClick ? closestTile : Mountain.Instance.GetStartPositionTile(Mountain.Instance.faces[currentFace]), blockage.tileOne);
+                    //List<Tile> pathToTileTwo = Mountain.Instance.GetPathBetweenTiles(currentFace, leftClick ? closestTile : Mountain.Instance.GetStartPositionTile(Mountain.Instance.faces[currentFace]), blockage.tileTwo);
+                    //Tile leastDistanceTile = pathToTileOne != null && pathToTileTwo != null && pathToTileTwo.Count < pathToTileOne.Count ? blockage.tileTwo : blockage.tileOne;
+
+                    //if (leftClick)
                     //{
-                        // if we AREN'T there, then we should pick the tile with the blockage which has the least amount of steps
-                        List<Tile> pathToTileOne = Mountain.Instance.GetPathBetweenTiles(currentFace, leftClick ? closestTile : Mountain.Instance.GetStartPositionTile(Mountain.Instance.faces[currentFace]), blockage.tileOne);
-                        List<Tile> pathToTileTwo = Mountain.Instance.GetPathBetweenTiles(currentFace, leftClick ? closestTile : Mountain.Instance.GetStartPositionTile(Mountain.Instance.faces[currentFace]), blockage.tileTwo);
-                        Tile leastDistanceTile = pathToTileOne != null && pathToTileTwo != null && pathToTileTwo.Count < pathToTileOne.Count ? blockage.tileTwo : blockage.tileOne;
+                    //    Tile currentTarget = movement.GetTargetTile();
 
-                        if (leftClick)
-                        {
-                            if (blockage.tileOne != closestTile && blockage.tileTwo != closestTile)
-                            {
-                                clickedOnTile = leastDistanceTile;
-                                if (clickedOnTile != null)
-                                {
-                                    objectToAction = blockage.gameObject;
-                                    // and then start our player moving toward it
-                                    movement.ClickedOnTile(clickedOnTile);
-                                }
-                            }
-                        }
-                        else if (packmulesWaiting > 0)
-                        {
-                            Packmule packmule = SpawnPackmule(leastDistanceTile, Packmule.MuleType.BlockageClearer);
-                            packmule.objectToAction = blockage.gameObject;
-                        }
+                    //    objectToAction = blockage.gameObject;
+                    //    _selectedItemBackground.color = Color.blue;
+                        
+                    //    // if we are not moving and are already on the correct tile
+                    //    if (!movement.isMoving && closestTile == leastDistanceTile)
+                    //    {
+                    //        // clear any existing paths before starting to clear blockage
+                    //        movement.ClearPaths(false);
+                    //        GoalReached();
+                    //    }
+
+                    //    // else if our current tile target is NOT the correct tile
+                    //    else if (currentTarget != leastDistanceTile)
+                    //    {
+                    //        clickedOnTile = leastDistanceTile;
+                    //        if (clickedOnTile != null)
+                    //            movement.ClickedOnTile(clickedOnTile);
+                    //    }
+
                     //}
-                }
+                    //else if (rightClick && packmulesWaiting > 0)
+                    //{
+                    //    Packmule packmule = SpawnPackmule(leastDistanceTile, Packmule.MuleType.BlockageClearer);
+                    //    packmule.objectToAction = blockage.gameObject;
+                    //}
+                //}
 
-                // LEFT CLICKED ANYTHING ELSE
+                // CLICKED ANYTHING ELSE
                 else
                 {
                     // don't accept movement clicks when shop is open
@@ -172,13 +199,27 @@ public class Player : Character {
                     {
                         clickedOnTile = Mountain.Instance.GetClosestTile(currentFace, hit.point);
 
-                        if (clickedOnTile == closestTile)
-                            return;
+                        // we're already moving to the clicked on tile
+                        if (clickedOnTile != movement.GetTargetTile())
+                        {
+                            if (clickedOnTile == closestTile && !movement.isMoving)
+                            {
+                                // we're already on the correct tile
+                                movement.ClearPaths(true);
+                                return;
+                            }
+                            else if (clickedOnTile == movement.GetNextTile())
+                            {
+                                // we're almost there - remove any tiles past the next one
+                                movement.SetNextTileAsTarget();
+                                return;
+                            }
+                        }
 
                         // pass to the movement script
                         movement.ClickedOnTile(clickedOnTile);
                     }
-                    else // rightClick
+                    else if (rightClick)
                     {
                         // send a packmule to the tile if we have one available
                         if (packmulesWaiting > 0)
@@ -192,7 +233,18 @@ public class Player : Character {
                 }
             }
         }
+    }
 
+    public override void GoalReached()
+    {
+        //if (objectToAction != null)
+        //{
+        //    // check if the object is a blockage - clear it
+        //    if (objectToAction.GetComponent<Blockage>() != null)
+        //    {
+        //        actionToProcess = ActionType.clearBlockage;
+        //    }
+        //}
     }
 
     public void DepositCash(int amount)

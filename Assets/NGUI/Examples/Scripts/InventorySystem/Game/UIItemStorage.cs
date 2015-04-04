@@ -189,8 +189,6 @@ public class UIItemStorage : MonoBehaviour
             }
             Replace(emptyIndex, item);
 
-            // TODO fix unlimited items having their 'location' switched from shop (can't rebuy if so)
-
             item.location = storageType;
             return true;
         }

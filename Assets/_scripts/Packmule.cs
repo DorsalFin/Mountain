@@ -18,6 +18,9 @@ public class Packmule : Character {
     }
     public MuleType muleType;
 
+    // a list of the items this mule is carrying
+    public List<InvGameItem> itemsOnMule = new List<InvGameItem>();
+
     private Player _owner;
     private bool _returningHome;
 
@@ -77,7 +80,12 @@ public class Packmule : Character {
         }
     }
 
-    public void GoalReached()
+    //public override void UseItem()
+    //{
+    //    // TODO mule using items
+    //}
+
+    public override void GoalReached()
     {
         bool homeThisTurn = _returningHome;
 
@@ -94,9 +102,9 @@ public class Packmule : Character {
                 case MuleType.Explorer:
                     ReturnHome();
                     break;
-                case MuleType.BlockageClearer:
-                    actionToProcess = ActionType.clearBlockage;
-                    break;
+                //case MuleType.BlockageClearer:
+                //    actionToProcess = ActionType.clearBlockage;
+                //    break;
             }
         }
 

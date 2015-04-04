@@ -307,7 +307,8 @@ public class Mountain : MonoBehaviour {
         if (startTile == null)
         {
             addStartTile = true;
-            startTile = GetStartPositionTile(faces[face]);
+            startTile = GetHomeBaseTile(faces[face]);
+            //startTile = GetStartPositionTile(faces[face]);
         }
 
         int startX = endTile.x;
