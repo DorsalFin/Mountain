@@ -44,11 +44,11 @@ public abstract class UIItemSlot : MonoBehaviour
 
 	abstract public InvGameItem Replace (InvGameItem item);
 
-    void Start()
-    {
-        if (fromStorage != null)
-            controllingPlayer = fromStorage.fromShop.player;
-    }
+    //void Start()
+    //{
+    //    if (fromStorage != null)
+    //        controllingPlayer = fromStorage.fromShop.player;
+    //}
 
 	/// <summary>
 	/// Show a tooltip for the item.

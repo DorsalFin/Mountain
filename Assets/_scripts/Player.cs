@@ -18,8 +18,8 @@ public class Player : Character {
     private PlayerCamera _playerCamera;
 
     // player inventory script
-    private Inventory _inventory;
-    public Inventory GetInventory { get { return _inventory; } }
+    //private Inventory _inventory;
+    //public Inventory GetInventory { get { return _inventory; } }
 
     private InvGameItem _selectedItem;
     private UIWidget _selectedItemBackground;
@@ -36,7 +36,7 @@ public class Player : Character {
     {
         _playerCamera = GetComponent<PlayerCamera>();
         playerUI = GetComponent<PlayerUI>();
-        _inventory = GetComponent<Inventory>();
+        //_inventory = GetComponent<Inventory>();
         _initialSpawnPosition = transform.position;
         packmulesWaiting = maxPackmules;
         // let the mountain generate before beginning
@@ -119,11 +119,13 @@ public class Player : Character {
         base.Update();
 
         // stamina / rest updates
-        playerUI.restBar.value = (_turnTimer * 1000) / restInMilliseconds;
-        playerUI.staminaBar.value += Time.deltaTime * GetCurrentStaminaRefreshRate();
+        //playerUI.restBar.value = (_turnTimer * 1000) / restInMilliseconds;
+        //playerUI.staminaBar.value += Time.deltaTime * GetCurrentStaminaRefreshRate();
+        playerUI.turnImage.fillAmount = (_turnTimer * 1000) / restInMilliseconds;
+        playerUI.staminaImage.fillAmount += Time.deltaTime * GetCurrentStaminaRefreshRate();
 
         // current cash updates
-        playerUI.currentCashLabel.text = _inventory.currentCash.ToString();
+        //playerUI.currentCashLabel.text = _inventory.currentCash.ToString();
 
         if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
         {
@@ -249,7 +251,7 @@ public class Player : Character {
 
     public void DepositCash(int amount)
     {
-        _inventory.currentCash += amount;
+        //_inventory.currentCash += amount;
     }
 
     public void ChangeFaceFocus(int toRotate)

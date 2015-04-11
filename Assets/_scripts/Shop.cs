@@ -9,7 +9,21 @@ public class Shop : MonoBehaviour {
     public GameObject shopItemPrefab;
     private string _currentlyDisplayingCategory;
 
-    public Player player;
+    public UIButtonSelectable[] categoryButtons;
+
+    public void UpdateItemDisplay(string category)
+    {
+        Debug.Log("show " + category + " items");
+    }
+
+    public void CategoryButtonClick()
+    {
+        foreach (UIButtonSelectable button in categoryButtons)
+        {
+            if (button.isSelected)
+                UpdateItemDisplay(button.name);
+        }
+    }
 
     public void CloseShop()
     {
