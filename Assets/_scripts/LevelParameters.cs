@@ -92,4 +92,9 @@ public class LevelParameters : MonoBehaviour {
     /// can buy the same items versus each player having unique items
     /// </summary>
     public bool oneCopyOfEachItem = true;
+
+    /// <summary>
+    /// how much slower an offhand weapon is, where a value of 1 represents normal speed
+    /// </summary>
+    public float offHandWeaponSpeedMultiplier = 1.50f;
 }

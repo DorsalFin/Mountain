@@ -18,6 +18,11 @@ public class Mountain : MonoBehaviour {
     public Transform[] faceTransforms;
     public Dictionary<string, List<Tile>> faces = new Dictionary<string, List<Tile>>();
 
+    /// <summary>
+    /// different monster types that may spawn on the mountain
+    /// </summary>
+    public List<GameObject> monsters = new List<GameObject>();
+
     public bool mountainGenerationComplete = false;
 
     // tile property prefabs
@@ -609,37 +614,46 @@ public class Mountain : MonoBehaviour {
             player.ToggleChangeFaceArrow(LEFT, IsTileOnEdgeOfFace(tile) && tile.x == 0 && AreTilesConnected(faces[tile.face], tile, LEFT, false));
             player.ToggleChangeFaceArrow(RIGHT, IsTileOnEdgeOfFace(tile) && tile.x == GetNumTilesOnLevel(tile.y) && AreTilesConnected(faces[tile.face], tile, RIGHT, false));
         }
-        
-        if (tile.revealed)
-            return;
 
-        // display all paths leading from the arrived at tile
-        tile.DisplayPaths(true);
-        tile.revealed = true;
-        tile.sprite.color = Color.white;
+        // update inhabitants of tile
+        tile.inhabitants.Add(character);
 
-        // display second half of paths if a full path exists
-        //List<Tile> connectedTiles = GetConnectedTiles(faces[tile.face], tile);
-        //foreach (Tile connectedTile in connectedTiles)
-        //    connectedTile.DisplayPaths(true, GetDirectionFromTileToTile(connectedTile, tile));
-
-        switch (tile.property)
+        // reveal tile and instantiate any objects if necessary
+        if (!tile.revealed)
         {
-            case Tile.TileProperty.minerals:
-                tile.propertyObject = (GameObject)Instantiate(mineralPrefab, tile.tileTransform.position + tilePropertyOffset, mineralPrefab.transform.rotation);
-                tile.propertyObject.GetComponent<ColliderDisplayText>().myType = tile;
-                break;
-            case Tile.TileProperty.monsters:
-                tile.propertyObject = (GameObject)Instantiate(monsterPrefab, tile.tileTransform.position + tilePropertyOffset, monsterPrefab.transform.rotation);
-                break;
+            // display all paths leading from the arrived at tile
+            tile.DisplayPaths(true);
+            tile.revealed = true;
+            tile.sprite.color = Color.white;
+
+            switch (tile.property)
+            {
+                case Tile.TileProperty.minerals:
+                    tile.propertyObject = (GameObject)Instantiate(mineralPrefab, tile.tileTransform.position + tilePropertyOffset, mineralPrefab.transform.rotation);
+                    tile.propertyObject.GetComponent<ColliderDisplayText>().myType = tile;
+                    break;
+                case Tile.TileProperty.monsters:
+                    if (tile.propertyObject == null)
+                    {
+                        GameObject randomMonster = monsters[Random.Range(0, monsters.Count - 1)];
+                        tile.propertyObject = (GameObject)Instantiate(randomMonster, tile.tileTransform.position + tilePropertyOffset, monsterPrefab.transform.rotation);
+                        tile.propertyObject.GetComponent<Monster>().closestTile = tile;
+                        tile.currentMonster = tile.propertyObject.GetComponent<Monster>();
+                        tile.inhabitants.Add(tile.propertyObject.GetComponent<Monster>());
+                    }
+                    break;
+            }
+            // parent the object if we created one so it will hide with the face
+            if (tile.propertyObject != null)
+            {
+                foreach (Transform t in faceTransforms)
+                    if (tile.face == t.name)
+                        tile.propertyObject.transform.parent = t;
+            }
         }
-        // parent the object if we created one so it will hide with the face
-        if (tile.propertyObject != null)
-        {
-            foreach (Transform t in faceTransforms)
-                if (tile.face == t.name)
-                    tile.propertyObject.transform.parent = t;
-        }
+
+        foreach (Character c in tile.inhabitants)
+            c.UpdateAttackState();
     }
 
     bool IsTileOnEdgeOfFace(Tile tile)

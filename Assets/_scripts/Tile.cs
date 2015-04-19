@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 [System.Serializable]
 public class Tile {
@@ -20,7 +21,12 @@ public class Tile {
     public int x;
     public int y;
     public string face;
+
+    // mineral tile variables
     public int currentYield;
+
+    public Monster currentMonster;
+    public List<Character> inhabitants = new List<Character>();
 
     public int[] openPaths = new int[]  { 0, 0,
                                          0,   0,
@@ -84,7 +90,10 @@ public class Tile {
         else if (num < 60)
             return TileProperty.minerals;
         else
+        {
+            //monster = new Monster(this);
             return TileProperty.monsters;
+        }
     }
 
     private void SetTileLevel()

@@ -17,12 +17,8 @@ public class Player : Character {
     public PlayerUI playerUI;
     private PlayerCamera _playerCamera;
 
-    // player inventory script
-    //private Inventory _inventory;
-    //public Inventory GetInventory { get { return _inventory; } }
-
-    private InvGameItem _selectedItem;
-    private UIWidget _selectedItemBackground;
+    // player inventory
+    private PlayerInventory _inventory;
 
     // packmule vars
     private Vector3 _initialSpawnPosition;
@@ -36,9 +32,11 @@ public class Player : Character {
     {
         _playerCamera = GetComponent<PlayerCamera>();
         playerUI = GetComponent<PlayerUI>();
-        //_inventory = GetComponent<Inventory>();
+        _inventory = GetComponent<PlayerInventory>();
+        combat = GetComponent<Combat>();
         _initialSpawnPosition = transform.position;
         packmulesWaiting = maxPackmules;
+
         // let the mountain generate before beginning
         StartCoroutine(WaitForMountainAndGo());
 
@@ -53,53 +51,7 @@ public class Player : Character {
 
         return true;
     }
-
-    //public override void UseItem()
-    //{
-    //    // check if selected item is this one, and if so clear it
-
-    //    itemSlotToUse.Replace(null);
-    //    itemSlotToUse.background.color = Color.black;
-    //}
 #endregion
-
-    //public void SelectOrDeselectItem(InvGameItem item, UIWidget background, UIItemSlot slot)
-    //{
-    //    if (_selectedItem == item || item == null)
-    //    {
-    //        if (_selectedItemBackground != null)
-    //            _selectedItemBackground.color = Color.black;
-    //        _selectedItem = null;
-    //        _selectedItemBackground = null;
-    //    }
-    //    // new selection
-    //    else if (_selectedItem == null || _selectedItem != item)
-    //    {
-    //        if (_selectedItemBackground != null)
-    //            _selectedItemBackground.color = Color.black;
-    //        _selectedItem = item;
-    //        _selectedItemBackground = background;
-    //        _selectedItemBackground.color = Color.cyan;
-    //        itemSlotToUse = slot;
-    //    }
-    //}
-
-    //public bool PurchaseItem(InvGameItem item)
-    //{
-    //    // if we have enough funds...
-    //    if (_inventory.currentCash >= item.baseItem.cost)
-    //    {
-    //        // try add to item storage - will return false if no room
-    //        bool successfullyAdded = playerUI.inBaseInventory.AddItemToStorage(item);
-    //        if (successfullyAdded)
-    //        {
-    //            // minus the money
-    //            _inventory.currentCash -= item.baseItem.cost;
-    //            return true;
-    //        }
-    //    }
-    //    return false;
-    //}
 
     public bool IsInHomeTile { get { return closestTile.x == -1; } }
 
@@ -110,7 +62,6 @@ public class Player : Character {
 
         Mountain.Instance.SetFaceVisibility(currentFace);
         closestTile = Mountain.Instance.GetHomeBaseTile(Mountain.Instance.faces[currentFace]);
-        //movement.ClickedOnTile(Mountain.Instance.GetStartPositionTile(Mountain.Instance.faces[currentFace]));
     }
 
     void Update()
@@ -118,15 +69,15 @@ public class Player : Character {
         // remember to call the base class update
         base.Update();
 
-        // stamina / rest updates
-        //playerUI.restBar.value = (_turnTimer * 1000) / restInMilliseconds;
-        //playerUI.staminaBar.value += Time.deltaTime * GetCurrentStaminaRefreshRate();
+        // stamina / rest / life updates
         playerUI.turnImage.fillAmount = (_turnTimer * 1000) / restInMilliseconds;
         playerUI.staminaImage.fillAmount += Time.deltaTime * GetCurrentStaminaRefreshRate();
+        playerUI.lifeImage.fillAmount = combat.CurrentLife / combat.maxLife;
 
         // current cash updates
-        //playerUI.currentCashLabel.text = _inventory.currentCash.ToString();
+        playerUI.currentCash.text = _inventory.currentCash.ToString();
 
+#region PLAYER_CLICKING
         if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
         {
             bool leftClick = Input.GetMouseButtonDown(0);
@@ -134,10 +85,7 @@ public class Player : Character {
 
             // clear any actions if we direct the player elsewhere
             if (leftClick && actionToProcess != ActionType.none)
-            {
                 actionToProcess = ActionType.none;
-                //objectToAction = null;
-            }
 
             Ray ray = _playerCamera.playerMainCamera.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
@@ -235,6 +183,8 @@ public class Player : Character {
                 }
             }
         }
+#endregion
+
     }
 
     public override void GoalReached()
@@ -251,7 +201,7 @@ public class Player : Character {
 
     public void DepositCash(int amount)
     {
-        //_inventory.currentCash += amount;
+        _inventory.currentCash += amount;
     }
 
     public void ChangeFaceFocus(int toRotate)

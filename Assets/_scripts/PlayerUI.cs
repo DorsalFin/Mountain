@@ -13,15 +13,19 @@ public class PlayerUI : MonoBehaviour {
     public GameObject changeFaceLeftButton;
     public GameObject changeFaceRightButton;
 
-    //public GameObject onPlayerInventory;
-    //public UIItemStorage inBaseInventory;
-
     public Shop shop;
     public UILabel currentCashLabel;
 
+    public AudioSource uiSfx;
+    public AudioClip equipWeaponClip;
+
+    // progress bars
     public Image turnImage;
     public Image lifeImage;
     public Image staminaImage;
+
+    // current money
+    public Text currentCash;
 
     public void ShopClicked()
     {
@@ -29,5 +33,12 @@ public class PlayerUI : MonoBehaviour {
         shop.UpdateItemDisplay("");
     }
 
+    public void PlaySound(string category)
+    {
+        if (uiSfx == null)
+            return;
 
+        if (category == "equip weapon")
+            uiSfx.PlayOneShot(equipWeaponClip);
+    }
 }

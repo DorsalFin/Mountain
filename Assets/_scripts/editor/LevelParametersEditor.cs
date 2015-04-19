@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEditor;
+using System.Collections.Generic;
 
 [CustomEditor(typeof(LevelParameters))]
 public class LevelParametersEditor : Editor {
@@ -19,6 +20,7 @@ public class LevelParametersEditor : Editor {
         myTarget.mineralRefreshNumSeconds = EditorGUILayout.IntField("Seconds until mineral fields regen 1", myTarget.mineralRefreshNumSeconds);
         myTarget.percentageMineralsDrainedEachHarvest = EditorGUILayout.IntSlider("Percentage of minerals drained each harvest", myTarget.percentageMineralsDrainedEachHarvest, 0, 100);
         myTarget.oneCopyOfEachItem = EditorGUILayout.Toggle("One of each item up for grabs", myTarget.oneCopyOfEachItem);
+        myTarget.offHandWeaponSpeedMultiplier = EditorGUILayout.FloatField("Offhand weapon speed multiplier", myTarget.offHandWeaponSpeedMultiplier);
     }
 	
 }

@@ -14,6 +14,9 @@ public class PlayerInventory : MonoBehaviour
     private Inventory characterSystemInventory;
     private Tooltip toolTip;
 
+    private Player _player;
+    private Combat _combat;
+
     private InputManager inputManagerDatabase;
 
     public GameObject HPMANACanvas;
@@ -33,9 +36,8 @@ public class PlayerInventory : MonoBehaviour
     //float currentDamage = 0;
     //float currentArmor = 0;
 
-    // what the player is holding their hands
-    public Item leftHandItem = null;
-    public Item rightHandItem = null;
+    public float currentCash;
+
     // hardcoded left and right hand indexes
     private int _leftHandIndex = 3;
     private int _rightHandIndex = 2;
@@ -72,12 +74,10 @@ public class PlayerInventory : MonoBehaviour
     {
         if (item.itemType == ItemType.Weapon)
         {
+            _player.playerUI.PlaySound("equip weapon");
             int index = characterSystemInventory.getPositionOfItem(item);
             Debug.Log("equip " + item.itemName + " / " + (index == _leftHandIndex ? "left" : "right") + " hand");
-            if (index == _leftHandIndex)
-                leftHandItem = item;
-            else
-                rightHandItem = item;
+            _combat.EquipItem(item, index == _rightHandIndex);
         }
     }
 
@@ -87,10 +87,7 @@ public class PlayerInventory : MonoBehaviour
         {
             int index = characterSystemInventory.getPositionOfItem(item);
             Debug.Log("unequip " + item.itemName + " / " + (index == _leftHandIndex ? "left" : "right") + " hand");
-            if (index == _leftHandIndex)
-                leftHandItem = null;
-            else
-                rightHandItem = null;            
+            _combat.UnequipItem(item, index == _rightHandIndex);            
         }
     }
 
@@ -104,7 +101,7 @@ public class PlayerInventory : MonoBehaviour
                     mainInventory = inventory.GetComponent<Inventory>();
                 mainInventory.sortItems();
                 if (item.itemAttributes[i].attributeName == "Slots")
-                    changeInventorySize(item.itemAttributes[i].attributeValue);
+                    changeInventorySize((int)item.itemAttributes[i].attributeValue);
             }
         }
     }
@@ -186,6 +183,8 @@ public class PlayerInventory : MonoBehaviour
         //    UpdateHPBar();
         //    UpdateManaBar();
         //}
+        _combat = GetComponent<Combat>();
+        _player = GetComponent<Player>();
 
         if (inputManagerDatabase == null)
             inputManagerDatabase = (InputManager)Resources.Load("InputManager");
@@ -201,6 +200,8 @@ public class PlayerInventory : MonoBehaviour
             characterSystemInventory = characterSystem.GetComponent<Inventory>();
         if (craftSystem != null)
             craftSystemInventory = craftSystem.GetComponent<Inventory>();
+
+        currentCash = LevelParameters.Instance.startingCash;
     }
 
     //void UpdateHPBar()

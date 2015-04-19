@@ -16,6 +16,11 @@ public class Movement : MonoBehaviour {
     private VectorLine _pathLine;
     private bool _generatingPath;
 
+    public AudioClip[] footstepClips;
+    public AudioSource footstepSfx;
+    private float _footstepTimer;
+    private bool _leftFoot;
+
     void Start()
     {
         _pathLine = new VectorLine("pathLine", new List<Vector3>(), pathLineMaterial, 6.0f, LineType.Continuous, Joins.Fill);
@@ -72,11 +77,26 @@ public class Movement : MonoBehaviour {
 
             if (isMoving)
             {
+                // footstep audio
+                _footstepTimer -= Time.deltaTime;
+                if (_footstepTimer < 0)
+                {
+                    // play next sound
+                    footstepSfx.PlayOneShot(footstepClips[_leftFoot ? 0 : 1]);
+
+                    // TODO fix this - it's currently getting LONGER between footsteps the faster you are
+                    _footstepTimer = 0.50f * (character.speed * 100);
+                }
+
                 Tile tileTarget = _pathToTargetTile[0];
                 transform.position = Vector3.MoveTowards(transform.position, tileTarget.tileTransform.position, character.speed);
                 float distanceToTargetTile = Vector3.Distance(transform.position, tileTarget.tileTransform.position);
 
-                // FURTHEST DISTANCE ///// update closestTile //////////////
+                /* 
+                 * FURTHEST DISTANCE 
+                 * here we update our characters closest tile and also remove ourselves
+                 * from the previous tile's inhabitant list
+                 */
                 if (distanceToTargetTile < LevelParameters.Instance.distanceToBeConsideredClosest)
                 {
                     if (character is Player)
@@ -86,18 +106,30 @@ public class Movement : MonoBehaviour {
                             player.ChangeFaceFocus(rotatingFaceInDirection);
                     }
 
+                    // remove ourselves from the previous tiles inhabitants
+                    if (character.closestTile != null)
+                        character.closestTile.inhabitants.Remove(character);
+
                     character.closestTile = tileTarget;
                 }
 
-                // MIDDLE DISTANCE ///// reveal tile ///////////////////////
+                /* 
+                 * MIDDLE DISTANCE 
+                 * here we reveal the tile and add ourselves to the tile's inhabitant
+                 * list. attacking does not start until we reach the short distance
+                 */
                 if (distanceToTargetTile < LevelParameters.Instance.minDistanceToRevealTile)
                     Mountain.Instance.ArrivedAtTile(character, tileTarget);
 
-                // CLOSEST DISTANCE ///// set _moving state ////////////////
+                /* 
+                 * SHORT DISTANCE 
+                 * we can stop movement here. we want to set any attacking states neccessary
+                 * and progress any other actions we have
+                 */
                 if (distanceToTargetTile < 0.025f)
                 {
                     isMoving = false;
-                    ProgressMovementOnPath();
+                    bool stillMoving = ProgressMovementOnPath();
                 }
             }
         }
@@ -156,10 +188,6 @@ public class Movement : MonoBehaviour {
                 pathlinePoints.Add(t.tileTransform.position);
         }
 
-        // add the object to action to the end of the list
-        //if (character.objectToAction != null)
-        //    pathlinePoints.Add(character.objectToAction.transform.position);
-
         _pathLine.points3.Clear();
         _pathLine.points3.AddRange(pathlinePoints);
         //_pathLine.endCap = "endCap";
@@ -175,7 +203,7 @@ public class Movement : MonoBehaviour {
         if (update) UpdatePath();
     }
 
-    void ProgressMovementOnPath()
+    bool ProgressMovementOnPath()
     {
         _pathToTargetTile.RemoveAt(0);
         if (_pathToTargetTile.Count > 0)
@@ -188,11 +216,13 @@ public class Movement : MonoBehaviour {
                 _upcomingPathToTargetTile.Clear();
             }
             character.actionToProcess = Character.ActionType.movement;
+            return true;
         }
         else
         {
             if (GetTargetTile() == character.closestTile)
                 character.GoalReached();
+            return false;
         }
     }
 

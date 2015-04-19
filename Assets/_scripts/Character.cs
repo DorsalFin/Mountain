@@ -15,6 +15,14 @@ public class Character : MonoBehaviour {
     }
 
     public Movement movement;
+    public Combat combat;
+
+    public bool isDead;
+
+    public AudioClip voiceDeathClip;
+    public AudioClip[] voiceHurtClips;
+    public AudioClip[] voiceTriumphClips;
+    public AudioSource voiceSfx;
 
     // tile vars
     public Tile closestTile;
@@ -25,23 +33,21 @@ public class Character : MonoBehaviour {
     public float restInMilliseconds = 2000;
     protected float _turnTimer;
 
-    //public GameObject objectToAction;
-    //protected UIItemSlot itemSlotToUse;
-    // various efficiency settings
-    //public int turnsToClearBlockage = 3;
-    //public virtual void UseItem() { }
-
     // current action
     public ActionType actionToProcess;
 
     public virtual bool ShouldDisplayPaths() { return true; }
     public virtual void ReturnHome() {}
-    public virtual void GoalReached() { }
+    public virtual void GoalReached() {}
 
     private int _turnCounter = 0;
 
     public void Update()
     {
+        // monsters dont run this turn system
+        if (this is Monster)
+            return;
+
 #region TURN_COUNTER
         if (IsResting())
             _turnTimer += Time.deltaTime;
@@ -54,6 +60,41 @@ public class Character : MonoBehaviour {
             }
         }
 #endregion
+    }
+
+    public void UpdateAttackState()
+    {
+        if (combat == null || isDead)
+            return;
+
+        // TODO this currently just attacks anyone the first
+        // inhabitant in the tile's list... need to make targets selective
+        // i guess we just search for any other 'players' and attack
+        // them as a priority for now
+        Character target = null;
+        foreach (Character character in closestTile.inhabitants)
+        {
+            if (character == this)
+                continue;
+
+            if (!character.isDead && (target == null || (character is Player)))
+                target = character;
+        }
+
+        // for now not attacking anything that is un-agressive (has no combat script)
+        if (target != null && target.combat != null)
+            combat.EngageTarget(target);
+    }
+
+    public void PlayVoiceClip(string category)
+    {
+        if (voiceSfx == null)
+            return;
+
+        if (category == "hurt")
+            voiceSfx.PlayOneShot(voiceHurtClips[Random.Range(0, voiceHurtClips.Length)]);
+        else if (category == "death")
+            voiceSfx.PlayOneShot(voiceDeathClip);
     }
 
     bool IsResting()

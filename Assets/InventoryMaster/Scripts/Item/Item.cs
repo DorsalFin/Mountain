@@ -17,6 +17,9 @@ public class Item
     public int indexItemInList = 999;    
     public int rarity;
 
+    public AudioClip hitAudio;
+    public AudioClip missAudio;
+
     [SerializeField]
     public List<ItemAttribute> itemAttributes = new List<ItemAttribute>();    
     
@@ -37,9 +40,32 @@ public class Item
     public Item getCopy()
     {
         return (Item)this.MemberwiseClone();        
-    }   
-    
-    
+    }
+
+    /// <summary>
+    /// Item is considered a shield if it has no attack speed
+    /// and a block value
+    /// </summary>
+    public bool IsShield()
+    {
+        bool hasAtkSpeed = GetValueFromAttributes("attack speed") != 0;
+        bool blockFound = GetValueFromAttributes("block chance") != 0;
+
+        if (!hasAtkSpeed && blockFound)
+            return true;
+        else
+            return false;
+    }
+
+    public float GetValueFromAttributes(string attribute)
+    {
+        foreach (ItemAttribute att in itemAttributes)
+        {
+            if (att.attributeName == attribute)
+                return att.attributeValue;
+        }
+        return 0;
+    }
 }
 
 

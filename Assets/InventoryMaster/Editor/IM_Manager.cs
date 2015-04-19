@@ -64,7 +64,7 @@ public class IM_Manager : EditorWindow
     int[] attributeValue;
 
     int[] attributeNamesManage = new int[100];
-    int[] attributeValueManage = new int[100];
+    float[] attributeValueManage = new float[100];
     int attributeAmountManage;
 
     bool showItem;
@@ -194,6 +194,9 @@ public class IM_Manager : EditorWindow
                     inventoryItemList.itemList[inventoryItemList.itemList.Count - 1].itemType = (ItemType)EditorGUILayout.EnumPopup("Item Type", inventoryItemList.itemList[inventoryItemList.itemList.Count - 1].itemType, GUILayout.Width(position.width - 33));                                      //the itemtype which you want to have can be selected with the enumpopup
                     inventoryItemList.itemList[inventoryItemList.itemList.Count - 1].maxStack = EditorGUILayout.IntField("Max Stack", inventoryItemList.itemList[inventoryItemList.itemList.Count - 1].maxStack, GUILayout.Width(position.width - 33));
                     inventoryItemList.itemList[inventoryItemList.itemList.Count - 1].rarity = EditorGUILayout.IntSlider("Rarity", inventoryItemList.itemList[inventoryItemList.itemList.Count - 1].rarity, 0, 100);
+                    inventoryItemList.itemList[inventoryItemList.itemList.Count - 1].hitAudio = (AudioClip)EditorGUILayout.ObjectField("hit audio", inventoryItemList.itemList[inventoryItemList.itemList.Count - 1].hitAudio, typeof(AudioClip), false, GUILayout.Width(position.width - 33));
+                    inventoryItemList.itemList[inventoryItemList.itemList.Count - 1].missAudio = (AudioClip)EditorGUILayout.ObjectField("miss audio", inventoryItemList.itemList[inventoryItemList.itemList.Count - 1].missAudio, typeof(AudioClip), false, GUILayout.Width(position.width - 33));
+
                     GUILayout.BeginVertical("Box", GUILayout.Width(position.width - 33));
                     showItemAttributes = EditorGUILayout.Foldout(showItemAttributes, "Item attributes");
                     if (showItemAttributes)
@@ -299,6 +302,8 @@ public class IM_Manager : EditorWindow
                             inventoryItemList.itemList[i].itemType = (ItemType)EditorGUILayout.EnumPopup("Item Type", inventoryItemList.itemList[i].itemType, GUILayout.Width(position.width - 45));                                      //the itemtype which you want to have can be selected with the enumpopup
                             inventoryItemList.itemList[i].maxStack = EditorGUILayout.IntField("Max Stack", inventoryItemList.itemList[i].maxStack, GUILayout.Width(position.width - 45));
                             inventoryItemList.itemList[i].rarity = EditorGUILayout.IntSlider("Rarity", inventoryItemList.itemList[i].rarity, 0, 100);
+                            inventoryItemList.itemList[i].hitAudio = (AudioClip)EditorGUILayout.ObjectField("hit audio", inventoryItemList.itemList[i].hitAudio, typeof(AudioClip), false, GUILayout.Width(position.width - 45));
+                            inventoryItemList.itemList[i].missAudio = (AudioClip)EditorGUILayout.ObjectField("miss audio", inventoryItemList.itemList[i].missAudio, typeof(AudioClip), false, GUILayout.Width(position.width - 45));
                             GUILayout.BeginVertical("Box", GUILayout.Width(position.width - 45));
                             showItemAttributes = EditorGUILayout.Foldout(showItemAttributes, "Item attributes");
                             if (showItemAttributes)
@@ -335,7 +340,7 @@ public class IM_Manager : EditorWindow
                                         inventoryItemList.itemList[i].itemAttributes.RemoveAt(z);
                                     GUI.color = Color.white;
                                     attributeNamesManage[z] = EditorGUILayout.Popup(attributeNamesManage[z], attributes, EditorStyles.popup);
-                                    inventoryItemList.itemList[i].itemAttributes[z].attributeValue = EditorGUILayout.IntField("Value", inventoryItemList.itemList[i].itemAttributes[z].attributeValue);
+                                    inventoryItemList.itemList[i].itemAttributes[z].attributeValue = EditorGUILayout.FloatField("Value", inventoryItemList.itemList[i].itemAttributes[z].attributeValue);
                                     EditorGUILayout.EndHorizontal();
                                 }
                                 GUI.color = Color.green;
