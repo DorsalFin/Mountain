@@ -94,7 +94,12 @@ public class LevelParameters : MonoBehaviour {
     public bool oneCopyOfEachItem = true;
 
     /// <summary>
-    /// how much slower an offhand weapon is, where a value of 1 represents normal speed
+    /// how long between when a corpse is dropped at base and when a monster respawns on his tile
     /// </summary>
-    public float offHandWeaponSpeedMultiplier = 1.50f;
+    public float timeBetweenMonsterRespawns = 10.0f;
+
+    /// <summary>
+    /// when a weapon upgrades, each component (damage, hit chance, etc) are improved by this percentage amount
+    /// </summary>
+    public int weaponAttributeUpgradePercent = 10;
 }

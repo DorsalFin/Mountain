@@ -10,6 +10,9 @@ public class Combat : MonoBehaviour {
     public float maxLife = 100;
     private float _currentLife;
     public Image lifeImage;
+    public float baseHealthRegenRate = 10;
+    public float currentHealthRegenRate;
+    private float _healthRegenTimer;
 
     public float CurrentLife { get { return _currentLife; } }
 
@@ -23,8 +26,8 @@ public class Combat : MonoBehaviour {
     public AudioSource rightHandSfx;
 
     // cached variables to make combat calculations more efficient
-    private Character _target = null;
     private bool _fighting;
+    private Character _target = null;
     private float _rightTimer;
     private float _leftTimer;
     private bool _swingingWithRightHand;
@@ -32,10 +35,13 @@ public class Combat : MonoBehaviour {
     private float _rightAttackSpeed;
     private float _leftAttackSpeed;
 
+    public float offHandWeaponSpeedMultiplier = 1.75f;
+
     void Awake()
     {
         _character = GetComponent<Character>();
         _currentLife = maxLife;
+        currentHealthRegenRate = baseHealthRegenRate;
     }
 
     public void SetLife(float life) 
@@ -79,7 +85,7 @@ public class Combat : MonoBehaviour {
             leftHandItem = item;
             _leftTimer = 0;
             // off hand weapons are slower
-            _leftAttackSpeed = item.GetValueFromAttributes("attack speed") * LevelParameters.Instance.offHandWeaponSpeedMultiplier;
+            _leftAttackSpeed = item.GetValueFromAttributes("attack speed") * offHandWeaponSpeedMultiplier;
             _swingingWithLeftHand = _leftAttackSpeed != 0;
             if (leftHandImage != null)
                 leftHandImage.enabled = _swingingWithLeftHand;
@@ -102,6 +108,16 @@ public class Combat : MonoBehaviour {
 
     void Update()
     {
+        if (!_character.isDead && _currentLife < maxLife)
+        {
+            _healthRegenTimer += Time.deltaTime;
+            if (_healthRegenTimer > currentHealthRegenRate)
+            {
+                _currentLife++;
+                _healthRegenTimer = 0;
+            }
+        }
+
         if (lifeImage != null)
             lifeImage.fillAmount = CurrentLife / maxLife;
 
@@ -181,4 +197,17 @@ public class Combat : MonoBehaviour {
 
         return true;
     }
+
+    //public Item UpgradeWeapon(Item baseItem)
+    //{
+    //    Item upgradedItem = baseItem.getCopy();
+
+    //    float newDamage = baseItem.GetValueFromAttributes("damage") * ((float)LevelParameters.Instance.weaponAttributeUpgradePercent / 100f);
+    //    float newAccuracy = baseItem.GetValueFromAttributes("hit chance") * ((float)LevelParameters.Instance.weaponAttributeUpgradePercent / 100f);
+
+    //    upgradedItem.SetValueInAttributes("damage", newDamage);
+    //    upgradedItem.SetValueInAttributes("hit chance", newAccuracy);
+
+    //    return upgradedItem;
+    //}
 }

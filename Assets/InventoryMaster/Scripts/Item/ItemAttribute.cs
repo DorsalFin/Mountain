@@ -7,6 +7,7 @@ public class ItemAttribute
 
     public string attributeName;
     public float attributeValue;
+
     public ItemAttribute(string attributeName, float attributeValue)
     {
         this.attributeName = attributeName;

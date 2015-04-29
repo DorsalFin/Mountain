@@ -11,8 +11,11 @@ public class Character : MonoBehaviour {
     {
         none = 0,
         movement = 1,
-        clearBlockage = 2
+        clearBlockage = 2,
+        collect = 3
     }
+
+    public int level = 0;
 
     public Movement movement;
     public Combat combat;
@@ -37,8 +40,9 @@ public class Character : MonoBehaviour {
     public ActionType actionToProcess;
 
     public virtual bool ShouldDisplayPaths() { return true; }
-    public virtual void ReturnHome() {}
-    public virtual void GoalReached() {}
+    public virtual void ReturnHome() { }
+    public virtual void GoalReached() { }
+    public virtual void CollectItems() { }
 
     private int _turnCounter = 0;
 
@@ -122,6 +126,10 @@ public class Character : MonoBehaviour {
                     maintainState = true;
                 break;
 
+            case ActionType.collect:
+                CollectItems();
+                maintainState = true;
+                break;
 
             // CLEAR BLOCKAGE ACTION ///////////////////////////////////////////////////////////
             //case ActionType.clearBlockage:

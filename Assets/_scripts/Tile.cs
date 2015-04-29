@@ -25,14 +25,18 @@ public class Tile {
     // mineral tile variables
     public int currentYield;
 
+    public int monsterLevel = 1;
     public Monster currentMonster;
+    private float _respawnTimer;
+    private bool _respawning;
+
     public List<Character> inhabitants = new List<Character>();
 
     public int[] openPaths = new int[]  { 0, 0,
                                          0,   0,
                                           0, 0 };
 
-    private float _timer;
+    
 
     public Tile() { }
     public Tile(Transform tileTransform)
@@ -42,7 +46,7 @@ public class Tile {
         SetTileHorizontalPosition();
         SetTileLevel();
         this.property = GenerateProperty();
-        this.face = tileTransform.parent.name;
+        this.face = tileTransform.parent.parent.name;
     }
 
     /// <summary>
@@ -61,6 +65,19 @@ public class Tile {
             openPaths = this.openPaths,
             face = this.face
         };
+    }
+
+    public void MonsterReturned()
+    {
+        monsterLevel++;
+
+        // make sure the current monster (or any nulls) are not
+        // in the inhabitants list
+        if (inhabitants.Contains(currentMonster))
+            inhabitants.Remove(currentMonster);
+        inhabitants.RemoveAll(item => item == null);
+
+        Mountain.Instance.StartCoroutine(Mountain.Instance.RespawnMonster(this));
     }
 
     public int GetMineAmount()

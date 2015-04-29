@@ -20,6 +20,8 @@ public class Item
     public AudioClip hitAudio;
     public AudioClip missAudio;
 
+    public Monster monsterReference;
+
     [SerializeField]
     public List<ItemAttribute> itemAttributes = new List<ItemAttribute>();    
     
@@ -65,6 +67,15 @@ public class Item
                 return att.attributeValue;
         }
         return 0;
+    }
+
+    public void SetValueInAttributes(string attribute, float addition)
+    {
+        foreach (ItemAttribute att in itemAttributes)
+        {
+            if (att.attributeName == attribute)
+                att.attributeValue += addition;
+        }
     }
 }
 

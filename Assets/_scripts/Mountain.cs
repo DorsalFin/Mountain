@@ -37,15 +37,25 @@ public class Mountain : MonoBehaviour {
 
     //public GameObject arrowChangeFace;
 
+    // camera values for each face... 0 is position, 1 is eulerAngles
+    public Dictionary<string, Vector3[]> defaultCameraValues = new Dictionary<string, Vector3[]>();
+
     void Awake()
     {
         Instance = this;
+
+        // populate default camera values
+        defaultCameraValues.Add("north", new Vector3[] { new Vector3(0, 4.7f, -10), new Vector3(0, 0, 0) });
+        defaultCameraValues.Add("east", new Vector3[] { new Vector3(10, 4.7f, 0), new Vector3(0, -90, 0) });
+        defaultCameraValues.Add("south", new Vector3[] { new Vector3(0, 4.7f, 10), new Vector3(0, -180, 0) });
+        defaultCameraValues.Add("west", new Vector3[] { new Vector3(-10, 4.7f, 0), new Vector3(0, 90, 0) });
 
         // populate tile references for each face
         foreach (Transform faceTransform in faceTransforms)
         {
             List<Tile> childTiles = new List<Tile>();
-            foreach (Transform child in faceTransform.transform)
+            Transform tileParent = faceTransform.Find("tiles");
+            foreach (Transform child in tileParent)
             {
                 Tile newTile = new Tile(child);
                 childTiles.Add(newTile);
@@ -80,6 +90,31 @@ public class Mountain : MonoBehaviour {
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// each time a monster is spawned on a tile
+    /// </summary>
+    void SpawnMonster(Tile tile)
+    {
+        GameObject randomMonster = monsters[Random.Range(0, monsters.Count - 1)];
+        tile.propertyObject = (GameObject)Instantiate(randomMonster, tile.tileTransform.position + tilePropertyOffset, monsterPrefab.transform.rotation);
+        tile.propertyObject.GetComponent<Monster>().closestTile = tile;
+        tile.currentMonster = tile.propertyObject.GetComponent<Monster>();
+        tile.currentMonster.LevelUp(tile.monsterLevel);
+        tile.inhabitants.Add(tile.propertyObject.GetComponent<Monster>());
+    }
+
+    public IEnumerator RespawnMonster(Tile tile)
+    {
+        // wait the requisite amount of respawn seconds
+        yield return new WaitForSeconds(LevelParameters.Instance.timeBetweenMonsterRespawns);
+
+        // then wait until all characters have left the tile
+        while (tile.inhabitants.Count > 0)
+            yield return null;
+
+        SpawnMonster(tile);
     }
 
     /// <summary>
@@ -632,15 +667,10 @@ public class Mountain : MonoBehaviour {
                     tile.propertyObject = (GameObject)Instantiate(mineralPrefab, tile.tileTransform.position + tilePropertyOffset, mineralPrefab.transform.rotation);
                     tile.propertyObject.GetComponent<ColliderDisplayText>().myType = tile;
                     break;
+
                 case Tile.TileProperty.monsters:
                     if (tile.propertyObject == null)
-                    {
-                        GameObject randomMonster = monsters[Random.Range(0, monsters.Count - 1)];
-                        tile.propertyObject = (GameObject)Instantiate(randomMonster, tile.tileTransform.position + tilePropertyOffset, monsterPrefab.transform.rotation);
-                        tile.propertyObject.GetComponent<Monster>().closestTile = tile;
-                        tile.currentMonster = tile.propertyObject.GetComponent<Monster>();
-                        tile.inhabitants.Add(tile.propertyObject.GetComponent<Monster>());
-                    }
+                        SpawnMonster(tile);
                     break;
             }
             // parent the object if we created one so it will hide with the face

@@ -403,13 +403,13 @@ public class DragItem : MonoBehaviour, IDragHandler, IPointerDownHandler, IEndDr
 
                             if (!temp1.Equals(temp2))
                             {
-                                if (firstItem.itemType == ItemType.UFPS_Weapon)
-                                {
-                                    Inventory.GetComponent<Inventory>().UnEquipItem1(secondItem);
-                                    Inventory.GetComponent<Inventory>().EquiptItem(firstItem);
-                                }
-                                else
-                                {
+                                //if (firstItem.itemType == ItemType.UFPS_Weapon)
+                                //{
+                                //    Inventory.GetComponent<Inventory>().UnEquipItem1(secondItem);
+                                //    Inventory.GetComponent<Inventory>().EquiptItem(firstItem);
+                                //}
+                                //else
+                                //{
                                     if (secondItem.itemType != ItemType.Backpack)
                                         Inventory.GetComponent<Inventory>().UnEquipItem1(secondItem);
 
@@ -419,7 +419,7 @@ public class DragItem : MonoBehaviour, IDragHandler, IPointerDownHandler, IEndDr
                                     firstItemRectTransform.localPosition = Vector3.zero;
 
                                     Inventory.GetComponent<Inventory>().EquiptItem(firstItem);
-                                }
+                                //}
                             }
 
                             if (fromHot)

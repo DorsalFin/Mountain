@@ -96,16 +96,16 @@ public class ConsumeItem : MonoBehaviour, IPointerDownHandler
                                     {
                                         GameObject otherItemFromCharacterSystem = eS.transform.GetChild(1).GetChild(i).GetChild(0).gameObject;
                                         Item otherSlotItem = otherItemFromCharacterSystem.GetComponent<ItemOnObject>().item;
-                                        if (item.itemType == ItemType.UFPS_Weapon)
-                                        {
-                                            inventory.UnEquipItem1(otherItemFromCharacterSystem.GetComponent<ItemOnObject>().item);
-                                            inventory.EquiptItem(item);
-                                        }
-                                        else
-                                        {
+                                        //if (item.itemType == ItemType.UFPS_Weapon)
+                                        //{
+                                        //    inventory.UnEquipItem1(otherItemFromCharacterSystem.GetComponent<ItemOnObject>().item);
+                                        //    inventory.EquiptItem(item);
+                                        //}
+                                        //else
+                                        //{
                                             if (item.itemType != ItemType.Backpack)
                                                 inventory.UnEquipItem1(otherItemFromCharacterSystem.GetComponent<ItemOnObject>().item);
-                                        }
+                                        //}
                                         if (this == null)
                                         {
                                             GameObject dropItem = (GameObject)Instantiate(otherSlotItem.itemModel);
@@ -140,7 +140,7 @@ public class ConsumeItem : MonoBehaviour, IPointerDownHandler
                     }
 
                 }
-                if (!gearable && item.itemType != ItemType.UFPS_Ammo && item.itemType != ItemType.UFPS_Grenade)
+                if (!gearable)// && item.itemType != ItemType.UFPS_Ammo && item.itemType != ItemType.UFPS_Grenade)
                 {
 
                     Item itemFromDup = null;
@@ -227,17 +227,17 @@ public class ConsumeItem : MonoBehaviour, IPointerDownHandler
                         {
                             GameObject otherItemFromCharacterSystem = eS.transform.GetChild(1).GetChild(i).GetChild(0).gameObject;
                             Item otherSlotItem = otherItemFromCharacterSystem.GetComponent<ItemOnObject>().item;
-                            if (item.itemType == ItemType.UFPS_Weapon)
-                            {
-                                inventory.UnEquipItem1(otherItemFromCharacterSystem.GetComponent<ItemOnObject>().item);
-                                inventory.EquiptItem(item);
-                            }
-                            else
-                            {
+                            //if (item.itemType == ItemType.UFPS_Weapon)
+                            //{
+                            //    inventory.UnEquipItem1(otherItemFromCharacterSystem.GetComponent<ItemOnObject>().item);
+                            //    inventory.EquiptItem(item);
+                            //}
+                            //else
+                            //{
                                 inventory.EquiptItem(item);
                                 if (item.itemType != ItemType.Backpack)
                                     inventory.UnEquipItem1(otherItemFromCharacterSystem.GetComponent<ItemOnObject>().item);
-                            }
+                            //}
                             if (this == null)
                             {
                                 GameObject dropItem = (GameObject)Instantiate(otherSlotItem.itemModel);
@@ -270,7 +270,7 @@ public class ConsumeItem : MonoBehaviour, IPointerDownHandler
 
 
         }
-        if (!gearable && item.itemType != ItemType.UFPS_Ammo && item.itemType != ItemType.UFPS_Grenade)
+        if (!gearable)// && item.itemType != ItemType.UFPS_Ammo && item.itemType != ItemType.UFPS_Grenade)
         {
 
             if (duplication != null)

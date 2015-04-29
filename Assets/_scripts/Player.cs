@@ -60,6 +60,17 @@ public class Player : Character {
         while (Mountain.Instance.mountainGenerationComplete)
             yield return null;
 
+        // set player to correct starting tile and camera rotation before fading in
+        transform.position = Mountain.Instance.GetHomeBaseTile(Mountain.Instance.faces[currentFace]).tileTransform.position;
+        _playerCamera.playerMainCamera.transform.position = Mountain.Instance.defaultCameraValues[currentFace][0];
+        _playerCamera.playerMainCamera.transform.eulerAngles = Mountain.Instance.defaultCameraValues[currentFace][1];
+        _playerCamera.SetInitialValue();
+
+        // wait an extra second so all pathing is hidden
+        yield return new WaitForSeconds(1);
+
+        playerUI.fader.FadeToClear();
+
         Mountain.Instance.SetFaceVisibility(currentFace);
         closestTile = Mountain.Instance.GetHomeBaseTile(Mountain.Instance.faces[currentFace]);
     }
@@ -174,10 +185,27 @@ public class Player : Character {
                         // send a packmule to the tile if we have one available
                         if (packmulesWaiting > 0)
                         {
-                            Tile muleTarget = Mountain.Instance.GetClosestTile(currentFace, hit.point);
-                            List<Tile> pathFound = Mountain.Instance.GetPathBetweenTiles(currentFace, Mountain.Instance.GetStartPositionTile(Mountain.Instance.faces[currentFace]), muleTarget);
-                            if (pathFound != null)
-                                SpawnPackmule(muleTarget);
+                            if (hit.collider.tag == "Monster")
+                            {
+                                Monster monster = hit.collider.GetComponent<Monster>();
+                                if (monster != null)
+                                {
+                                    if (monster.isDead)
+                                    {
+                                        Tile muleTarget = monster.closestTile;
+                                        List<Tile> pathFound = Mountain.Instance.GetPathBetweenTiles(currentFace, Mountain.Instance.GetStartPositionTile(Mountain.Instance.faces[currentFace]), muleTarget);
+                                        if (pathFound != null)
+                                            SpawnPackmule(muleTarget, Packmule.MuleType.CorpseCollector);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                Tile muleTarget = Mountain.Instance.GetClosestTile(currentFace, hit.point);
+                                List<Tile> pathFound = Mountain.Instance.GetPathBetweenTiles(currentFace, Mountain.Instance.GetStartPositionTile(Mountain.Instance.faces[currentFace]), muleTarget);
+                                if (pathFound != null)
+                                    SpawnPackmule(muleTarget);
+                            }
                         }
                     }
                 }

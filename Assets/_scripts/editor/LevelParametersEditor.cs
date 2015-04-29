@@ -20,7 +20,8 @@ public class LevelParametersEditor : Editor {
         myTarget.mineralRefreshNumSeconds = EditorGUILayout.IntField("Seconds until mineral fields regen 1", myTarget.mineralRefreshNumSeconds);
         myTarget.percentageMineralsDrainedEachHarvest = EditorGUILayout.IntSlider("Percentage of minerals drained each harvest", myTarget.percentageMineralsDrainedEachHarvest, 0, 100);
         myTarget.oneCopyOfEachItem = EditorGUILayout.Toggle("One of each item up for grabs", myTarget.oneCopyOfEachItem);
-        myTarget.offHandWeaponSpeedMultiplier = EditorGUILayout.FloatField("Offhand weapon speed multiplier", myTarget.offHandWeaponSpeedMultiplier);
+        myTarget.timeBetweenMonsterRespawns = EditorGUILayout.FloatField("Time before monster respawns", myTarget.timeBetweenMonsterRespawns);
+        myTarget.weaponAttributeUpgradePercent = EditorGUILayout.IntSlider("percentage upgrade on weapon attributes", myTarget.weaponAttributeUpgradePercent, 0, 100);
     }
 	
 }

@@ -12,11 +12,19 @@ public class PlayerCamera : MonoBehaviour {
     private Vector3 _lookAt;
     private int _rotateDirection = 0;
 
+    private bool _valuesSet = false;
+
     void Awake()
     {
         _player = GetComponent<Player>();
+    }
+
+    public void SetInitialValue()
+    {
         // cache the initial look at vector using camera's height
         _lookAt = new Vector3(0, playerMainCamera.transform.position.y, 0);
+        targetFaceAngle = Mountain.Instance.GetRotationValueForFace(_player.currentFace);
+        _valuesSet = true;
     }
 
     public void ChangeFaceFocus(int direction)
@@ -30,6 +38,9 @@ public class PlayerCamera : MonoBehaviour {
 
     void LateUpdate()
     {
+        if (!_valuesSet)
+            return;
+
         // if we aren't quite there yet
         if (!RoughlyEqual(playerMainCamera.transform.rotation.eulerAngles.y, targetFaceAngle, targetFaceAngle == 0 ? 0.75f : 0.5f))
         {

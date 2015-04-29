@@ -19,6 +19,8 @@ public class PlayerUI : MonoBehaviour {
     public AudioSource uiSfx;
     public AudioClip equipWeaponClip;
 
+    public SceneFadeInOut fader;
+
     // progress bars
     public Image turnImage;
     public Image lifeImage;

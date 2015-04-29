@@ -14,12 +14,13 @@ public class Packmule : Character {
         ResourceGatherer = 1,
         ItemDeliverer = 2,
         Explorer = 3,
-        BlockageClearer = 4
+        BlockageClearer = 4,
+        CorpseCollector = 5
     }
     public MuleType muleType;
 
     // a list of the items this mule is carrying
-    public List<InvGameItem> itemsOnMule = new List<InvGameItem>();
+    public List<Item> itemsOnMule = new List<Item>();
 
     private Player _owner;
     private bool _returningHome;
@@ -27,9 +28,10 @@ public class Packmule : Character {
     // various speed and efficiency packmules vars, taken from the player
     private float _resourceGatheringTime;
     private bool _gathering;
-    public int _currentMinerals;
+    public int currentMinerals;
     private int _totalMineralsThisMine;
     private float _timer;
+    private GameObject _carrying;
 
     void Update()
     {
@@ -40,10 +42,10 @@ public class Packmule : Character {
         {
             _timer += Time.deltaTime;
 
-            int previous = _currentMinerals;
+            int previous = currentMinerals;
             float tParam = Mathf.InverseLerp(0, _resourceGatheringTime, _timer);
-            _currentMinerals = Mathf.RoundToInt(tParam * (float)_totalMineralsThisMine);
-            closestTile.MineTile(_currentMinerals - previous);
+            currentMinerals = Mathf.RoundToInt(tParam * (float)_totalMineralsThisMine);
+            closestTile.MineTile(currentMinerals - previous);
 
             if (_timer > _resourceGatheringTime)
             {
@@ -57,6 +59,38 @@ public class Packmule : Character {
     public override bool ShouldDisplayPaths()
     {
         return _owner.ShouldDisplayPaths();
+    }
+
+    public override void CollectItems()
+    {
+        if (muleType == MuleType.CorpseCollector)
+        {
+            Monster deadMonster = closestTile.currentMonster;
+            // generate a corpse item
+            ItemDataBaseList itemList = (ItemDataBaseList)Resources.Load("ItemDatabase");
+            Item corpse = itemList.getItemByName("corpse");
+            corpse.monsterReference = deadMonster;
+            itemsOnMule.Add(corpse);
+            _carrying = deadMonster.gameObject;
+            _carrying.transform.parent = transform;
+            _carrying.transform.localPosition = Vector3.zero;
+            ReturnHome();
+        }
+    }
+
+    public void DepositItems()
+    {
+        // deposit any cash on the mule
+        _owner.DepositCash(currentMinerals);
+
+        foreach (Item item in itemsOnMule)
+        {
+            if (item.itemType == ItemType.Corpse)
+            {
+                Debug.Log("Tell tile " + item.monsterReference.closestTile.x + "-" + item.monsterReference.closestTile.y + " to regenerate");
+                item.monsterReference.closestTile.MonsterReturned();
+            }
+        }
     }
 
     public void SetMuleType(Player owner, Tile tileGoal, MuleType forcedType = MuleType.Null)
@@ -100,6 +134,9 @@ public class Packmule : Character {
                 //case MuleType.BlockageClearer:
                 //    actionToProcess = ActionType.clearBlockage;
                 //    break;
+                case MuleType.CorpseCollector:
+                    actionToProcess = ActionType.collect;
+                    break;
             }
         }
 
@@ -115,10 +152,9 @@ public class Packmule : Character {
 
     void FinishedJourney()
     {
+        DepositItems();
         _owner.currentPackmules.Remove(this);
         _owner.packmulesWaiting++;
-        if (muleType == MuleType.ResourceGatherer)
-            _owner.DepositCash(_currentMinerals);
         Destroy(gameObject);
     }
 
