@@ -50,7 +50,7 @@ public class Packmule : Character {
             if (_timer > _resourceGatheringTime)
             {
                 _gathering = false;
-                closestTile.propertyObject.GetComponent<ColliderDisplayText>().ToggleForcedState(false);
+                //closestTile.propertyObject.GetComponent<ColliderDisplayText>().ToggleForcedState(false);
                 ReturnHome();
             }
         }
@@ -76,6 +76,14 @@ public class Packmule : Character {
             _carrying.transform.localPosition = Vector3.zero;
             ReturnHome();
         }
+    }
+
+    public override GameObject GetFinalPathPoint()
+    {
+        if (muleType == MuleType.CorpseCollector || muleType == MuleType.ResourceGatherer)
+            return movement.GetTargetTile().propertyObject;
+
+        return null;
     }
 
     public void DepositItems()
@@ -126,7 +134,7 @@ public class Packmule : Character {
                     _timer = 0;
                     _totalMineralsThisMine = closestTile.GetMineAmount();
                     _gathering = true;
-                    closestTile.propertyObject.GetComponent<ColliderDisplayText>().ToggleForcedState(true);
+                    //closestTile.propertyObject.GetComponent<ColliderDisplayText>().ToggleForcedState(true);
                     break;
                 case MuleType.Explorer:
                     ReturnHome();

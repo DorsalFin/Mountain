@@ -103,7 +103,8 @@ public class Movement : MonoBehaviour {
                     {
                         Player player = character as Player;
                         if (player.closestTile != null && player.closestTile.face != "" && player.closestTile.face != tileTarget.face)
-                            player.ChangeFaceFocus(rotatingFaceInDirection);
+                            Mountain.Instance.SetPlayerFaceFocus(player, tileTarget.face);
+                            //player.ChangeFaceFocus(tileTarget.face);//rotatingFaceInDirection);
                     }
 
                     // remove ourselves from the previous tiles inhabitants
@@ -187,6 +188,11 @@ public class Movement : MonoBehaviour {
             foreach (Tile t in _pathToTargetTile)
                 pathlinePoints.Add(t.tileTransform.position);
         }
+
+        // add any end points (monsters, items, blockage, etc)
+        GameObject finalPoint = character.GetFinalPathPoint();
+        if (finalPoint != null)
+            pathlinePoints.Add(finalPoint.transform.position);
 
         _pathLine.points3.Clear();
         _pathLine.points3.AddRange(pathlinePoints);

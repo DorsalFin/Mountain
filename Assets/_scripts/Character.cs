@@ -5,7 +5,7 @@ using System.Collections;
 /// Contains the base elements of a character that runs turns and has movement.
 /// Inherited by more specialised extended classes like Player, or Packmule
 /// </summary>
-public class Character : MonoBehaviour {
+public class Character : Photon.MonoBehaviour {
 
     public enum ActionType
     {
@@ -43,6 +43,7 @@ public class Character : MonoBehaviour {
     public virtual void ReturnHome() { }
     public virtual void GoalReached() { }
     public virtual void CollectItems() { }
+    public virtual GameObject GetFinalPathPoint() { return null; }
 
     private int _turnCounter = 0;
 

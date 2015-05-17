@@ -3,7 +3,7 @@ using System.Collections;
 using Vectrosity;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(Player))]
+//[RequireComponent(typeof(Player))]
 public class PlayerUI : MonoBehaviour {
 
     public Camera playerUICamera;

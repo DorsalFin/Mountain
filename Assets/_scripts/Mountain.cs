@@ -2,7 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Mountain : MonoBehaviour {
+[System.Serializable]
+public class Mountain : Photon.MonoBehaviour {
 
     public const int TOP_LEFT = 0;
     public const int TOP_RIGHT = 1;
@@ -12,6 +13,8 @@ public class Mountain : MonoBehaviour {
     public const int BOTTOM_RIGHT = 5;
 
     public static Mountain Instance;
+    public GameObject cameraTarget;
+
     /// <summary>
     /// fill these transforms with any parent faces you have in the scene
     /// </summary>
@@ -37,18 +40,9 @@ public class Mountain : MonoBehaviour {
 
     //public GameObject arrowChangeFace;
 
-    // camera values for each face... 0 is position, 1 is eulerAngles
-    public Dictionary<string, Vector3[]> defaultCameraValues = new Dictionary<string, Vector3[]>();
-
     void Awake()
     {
         Instance = this;
-
-        // populate default camera values
-        defaultCameraValues.Add("north", new Vector3[] { new Vector3(0, 4.7f, -10), new Vector3(0, 0, 0) });
-        defaultCameraValues.Add("east", new Vector3[] { new Vector3(10, 4.7f, 0), new Vector3(0, -90, 0) });
-        defaultCameraValues.Add("south", new Vector3[] { new Vector3(0, 4.7f, 10), new Vector3(0, -180, 0) });
-        defaultCameraValues.Add("west", new Vector3[] { new Vector3(-10, 4.7f, 0), new Vector3(0, 90, 0) });
 
         // populate tile references for each face
         foreach (Transform faceTransform in faceTransforms)
@@ -64,7 +58,15 @@ public class Mountain : MonoBehaviour {
         }
 
         // complete path generation in a coroutine
-        StartCoroutine(RunPathGeneration());
+        //StartCoroutine(RunPathGeneration());
+    }
+
+    void Start()
+    {
+        if (PhotonNetwork.isMasterClient)
+        {
+            StartCoroutine(RunPathGeneration());
+        }
     }
 
     void Update()
@@ -117,6 +119,11 @@ public class Mountain : MonoBehaviour {
         SpawnMonster(tile);
     }
 
+    public void SetPlayerFaceFocus(Player player, string face)
+    {
+        //player.orbitCam.SetLocalRotationHorizontalInput(GetRotationValueForFace(face));
+    }
+
     /// <summary>
     /// we have to wait frames between path generation algorithms to avoid them
     /// overlapping and overwriting path values
@@ -145,6 +152,59 @@ public class Mountain : MonoBehaviour {
 
         yield return new WaitForEndOfFrame();
 
+        //SetPlayerInitialStates();
+        //yield return new WaitForEndOfFrame();
+
+        SetAllTilesDisplayedState(false);
+        mountainGenerationComplete = true;
+
+        // this is only run by the master client, so i have to now pass
+        // all generated variables to other client's mountain
+        List<int> allPathList = new List<int>();
+        List<int> tilePropertyTypes = new List<int>();
+
+        foreach (string faceKey in faces.Keys)
+        {
+            foreach (Tile tile in faces[faceKey])
+            {
+                tilePropertyTypes.Add((int)tile.property);
+                foreach (int path in tile.openPaths)
+                    allPathList.Add(path);
+            }
+        }
+
+        // pass path lists and tile property types
+        int[] pathInts = allPathList.ToArray();
+        int[] propertyInts = tilePropertyTypes.ToArray();
+        photonView.RPC("InheritMountainVariables", PhotonTargets.OthersBuffered, pathInts, propertyInts);
+
+        NetworkHandler.Instance.BeginFade();
+    }
+
+    [RPC]
+    public void InheritMountainVariables(int[] generatedPaths, int[] propertyInts)
+    {
+        // set same pathing as master client
+        int currentPath = 0;
+        // set same proprties as master client
+        int currentProperty = 0;
+
+        foreach (string faceKey in faces.Keys)
+        {
+            foreach (Tile tile in faces[faceKey])
+            {
+                tile.property = (Tile.TileProperty)propertyInts[currentProperty];
+                currentProperty++;
+
+                for (int i = 0; i < tile.openPaths.Length; i++)
+                {
+                    tile.openPaths[i] = generatedPaths[currentPath];
+                    currentPath++;
+                }
+            }
+        }
+
+        SetInitialTileMineralYields();
         SetAllTilesDisplayedState(false);
         mountainGenerationComplete = true;
     }
@@ -665,7 +725,7 @@ public class Mountain : MonoBehaviour {
             {
                 case Tile.TileProperty.minerals:
                     tile.propertyObject = (GameObject)Instantiate(mineralPrefab, tile.tileTransform.position + tilePropertyOffset, mineralPrefab.transform.rotation);
-                    tile.propertyObject.GetComponent<ColliderDisplayText>().myType = tile;
+                    //tile.propertyObject.GetComponent<ColliderDisplayText>().myType = tile;
                     break;
 
                 case Tile.TileProperty.monsters:
