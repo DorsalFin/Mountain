@@ -9,8 +9,6 @@ using KGF;
 //[RequireComponent(typeof(PlayerCamera), typeof(PlayerUI), typeof(Movement))]
 public class Player : Character {
 
-    private string _homeFace;
-
     public Tile clickedOnTile;
 
     // stamina
@@ -18,13 +16,12 @@ public class Player : Character {
 
     // player camera scripts
     public PlayerUI playerUI;
-    private PlayerCamera _playerCamera;
+    public PlayerCamera playerCamera;
+    public AudioListener audioListener;
     //public KGFOrbitCam orbitCam;
 
     // player inventory
     private PlayerInventory _inventory;
-
-    public NetworkPlayer networkPlayer;
 
     // packmule vars
     //public Vector3 initialSpawnPosition;
@@ -36,13 +33,13 @@ public class Player : Character {
     
     void Awake()
     {
-        _playerCamera = GetComponent<PlayerCamera>();
+        playerCamera = GetComponent<PlayerCamera>();
         //orbitCam = _playerCamera.playerMainCamera.GetComponent<KGFOrbitCam>();
         playerUI = GetComponent<PlayerUI>();
         _inventory = GetComponent<PlayerInventory>();
         combat = GetComponent<Combat>();
         packmulesWaiting = maxPackmules;
-        networkPlayer = transform.root.GetComponent<NetworkPlayer>();
+        networkCharacter = transform.root.GetComponent<NetworkCharacter>();
     }
 
     void Start()
@@ -65,12 +62,6 @@ public class Player : Character {
 
     public bool IsInHomeTile { get { return closestTile.x == -1; } }
 
-    public void SetHomeFace(string face)
-    {
-        currentFace = face;
-        _homeFace = face;
-    }
-
     IEnumerator WaitForMountainAndGo()
     {
         while (Mountain.Instance == null)
@@ -83,10 +74,10 @@ public class Player : Character {
             yield return null;
 
         // set player to correct starting tile and camera rotation before fading in
-        transform.position = Mountain.Instance.GetHomeBaseTile(Mountain.Instance.faces[currentFace]).tileTransform.position;
+        characterModel.transform.position = Mountain.Instance.GetHomeBaseTile(Mountain.Instance.faces[currentFace]).tileTransform.position;
         //orbitCam.itsTarget.itsTarget = Mountain.Instance.cameraTarget;
         //Mountain.Instance.SetPlayerFaceFocus(this, _homeFace);
-        _playerCamera.SetStartFaceRotation(_homeFace);
+        playerCamera.SetStartFaceRotation(homeFace);
 
         // wait an extra time so all pathing is hidden
         yield return new WaitForSeconds(2.50f);
@@ -99,9 +90,6 @@ public class Player : Character {
 
     void Update()
     {
-        if (!networkPlayer.gameObject.GetPhotonView().isMine)
-            return;
-
         // remember to call the base class update
         base.Update();
 
@@ -123,13 +111,13 @@ public class Player : Character {
             if (leftClick && actionToProcess != ActionType.none)
                 actionToProcess = ActionType.none;
 
-            Ray ray = _playerCamera.playerMainCamera.ScreenPointToRay(Input.mousePosition);
+            Ray ray = playerCamera.playerMainCamera.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit))
             {
                 // LEFT CLICKED THE SHOP
-                if (hit.collider.tag == "ItemShop" && leftClick)
-                    playerUI.ShopClicked();
+                //if (hit.collider.tag == "ItemShop" && leftClick)
+                //    playerUI.ShopClicked();
 
                 // CLICKED SOME BLOCKAGE
                 //else if (hit.collider.tag == "Blockage" && _selectedItem != null && _selectedItem.baseItem.name == "spade" &&
@@ -175,8 +163,8 @@ public class Player : Character {
                 //}
 
                 // CLICKED ANYTHING ELSE
-                else
-                {
+                //else
+                //{
                     // don't accept movement clicks when shop is open
                     //if (playerUI.shop.gameObject.activeSelf)
                     //    return;
@@ -233,7 +221,7 @@ public class Player : Character {
                             }
                         }
                     }
-                }
+                //}
             }
         }
 #endregion
@@ -260,7 +248,7 @@ public class Player : Character {
     Packmule SpawnPackmule(Tile target, Packmule.MuleType forcedMuleType = Packmule.MuleType.Null)
     {
         packmulesWaiting--;
-        GameObject mule = (GameObject)Instantiate(packmulePrefab, Mountain.Instance.GetHomeBaseTile(Mountain.Instance.faces[_homeFace]).tileTransform.position, Quaternion.identity);
+        GameObject mule = (GameObject)Instantiate(packmulePrefab, Mountain.Instance.GetHomeBaseTile(Mountain.Instance.faces[homeFace]).tileTransform.position, Quaternion.identity);
         Packmule packmule = mule.GetComponent<Packmule>();
         packmule.currentFace = this.currentFace;
         packmule.closestTile = null;
@@ -275,10 +263,10 @@ public class Player : Character {
 
     public void ToggleChangeFaceArrow(int direction, bool show)
     {
-        //if (direction == Mountain.RIGHT)
-        //    playerUI.changeFaceRightButton.SetActive(show);
-        //else if (direction == Mountain.LEFT)
-        //    playerUI.changeFaceLeftButton.SetActive(show);
+        if (direction == Mountain.RIGHT)
+            playerUI.changeFaceRightButton.SetActive(show);
+        else if (direction == Mountain.LEFT)
+            playerUI.changeFaceLeftButton.SetActive(show);
     }
 
     float GetCurrentStaminaRefreshRate()

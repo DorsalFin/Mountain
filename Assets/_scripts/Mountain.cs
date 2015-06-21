@@ -63,7 +63,7 @@ public class Mountain : Photon.MonoBehaviour {
 
     void Start()
     {
-        if (PhotonNetwork.isMasterClient)
+        if (PhotonNetwork.isMasterClient || NetworkHandler.Instance.Offline)
         {
             StartCoroutine(RunPathGeneration());
         }
@@ -119,11 +119,6 @@ public class Mountain : Photon.MonoBehaviour {
         SpawnMonster(tile);
     }
 
-    public void SetPlayerFaceFocus(Player player, string face)
-    {
-        //player.orbitCam.SetLocalRotationHorizontalInput(GetRotationValueForFace(face));
-    }
-
     /// <summary>
     /// we have to wait frames between path generation algorithms to avoid them
     /// overlapping and overwriting path values
@@ -173,12 +168,19 @@ public class Mountain : Photon.MonoBehaviour {
             }
         }
 
-        // pass path lists and tile property types
-        int[] pathInts = allPathList.ToArray();
-        int[] propertyInts = tilePropertyTypes.ToArray();
-        photonView.RPC("InheritMountainVariables", PhotonTargets.OthersBuffered, pathInts, propertyInts);
+        if (NetworkHandler.Instance.Online)
+        {
+            // pass path lists and tile property types
+            int[] pathInts = allPathList.ToArray();
+            int[] propertyInts = tilePropertyTypes.ToArray();
+            photonView.RPC("InheritMountainVariables", PhotonTargets.OthersBuffered, pathInts, propertyInts);
 
-        NetworkHandler.Instance.BeginFade();
+            NetworkHandler.Instance.BeginFade();
+        }
+        else if (NetworkHandler.Instance.Offline)
+        {
+            NetworkHandler.Instance.SpawnPlayer();
+        }
     }
 
     [RPC]
@@ -601,18 +603,34 @@ public class Mountain : Photon.MonoBehaviour {
         return directionString;
     }
 
-    public string GetNextFaceInDirection(string face, int direction)
+    public int GetFaceIndex(string face)
     {
-        // assign intial index
-        int initialFaceIndex = 99;
         for (int i = 0; i < faceTransforms.Length; i++)
         {
             if (faceTransforms[i].name == face)
-            {
-                initialFaceIndex = i;
-                break;
-            }
+                return i;
         }
+
+        return 0;
+    }
+
+    public string GetFaceNameByIndex(int index)
+    {
+        return faceTransforms[index].name;
+    }
+
+    public string GetNextFaceInDirection(string face, int direction)
+    {
+        // assign intial index
+        int initialFaceIndex = GetFaceIndex(face);
+        //for (int i = 0; i < faceTransforms.Length; i++)
+        //{
+        //    if (faceTransforms[i].name == face)
+        //    {
+        //        initialFaceIndex = i;
+        //        break;
+        //    }
+        //}
 
         // get the left or right based on arguments
         if (initialFaceIndex == 0 && direction == LEFT)
@@ -710,8 +728,25 @@ public class Mountain : Photon.MonoBehaviour {
             player.ToggleChangeFaceArrow(RIGHT, IsTileOnEdgeOfFace(tile) && tile.x == GetNumTilesOnLevel(tile.y) && AreTilesConnected(faces[tile.face], tile, RIGHT, false));
         }
 
+        if (character.currentFace != tile.face)
+            character.currentFace = tile.face;
+
         // update inhabitants of tile
         tile.inhabitants.Add(character);
+
+
+
+
+
+
+        // update our network character's tile details on other players local machines
+        int[] detailArray = new int[] { PhotonNetwork.player.ID, GetFaceIndex(character.currentFace), tile.x, tile.y };
+        character.networkCharacter.photonView.RPC("ChangedTile", PhotonTargets.Others, detailArray);
+
+
+
+
+
 
         // reveal tile and instantiate any objects if necessary
         if (!tile.revealed)

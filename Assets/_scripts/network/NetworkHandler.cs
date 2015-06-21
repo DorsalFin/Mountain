@@ -1,17 +1,28 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System;
 using UnityEngine.UI;
 
 public class NetworkHandler : Photon.MonoBehaviour {
 
     public string gameVersion = "v0.0.1";
+    bool _online;
+    public bool Online { get { return _online; } }
+    public bool Offline { get { return !_online; } }
+
 
     public static NetworkHandler Instance;
     void Awake()
     {
         Instance = this;
     }
+
+    /// <summary>
+    /// this holds all root player objects in a game indexed by photon playerID
+    /// </summary>
+    public GameObject[] playerRootsByID = new GameObject[4];
+    public List<Character> ownedCharacters = new List<Character>();
 
     public Text connectionDetailsText;
     public Button[] buttonsToEnableOnConnect;
@@ -43,20 +54,17 @@ public class NetworkHandler : Photon.MonoBehaviour {
 
             if (uiStageRoots[1].activeInHierarchy)
                 playersInRoomText.text = PhotonNetwork.room.playerCount + " / " + PhotonNetwork.room.maxPlayers + "  players connected";
-
-            if (Input.GetKeyDown(KeyCode.M))
-            {
-                foreach (Tile tile in Mountain.Instance.faces["north"])
-                {
-                    debugText.text += " tile(" + tile.x + "," + tile.y + ") - ";
-
-                    foreach (int path in tile.openPaths)
-                        debugText.text += path + ", ";
-
-                    debugText.text += " // ";
-                }
-            }
         }
+    }
+
+    /// <summary>
+    /// can skip multiplayer process and just start single player
+    /// </summary>
+    public void StartSinglePlayer()
+    {
+        CancelInvoke("RefreshGameList");
+        _online = false;
+        Instantiate(Resources.Load("game manager"), Vector3.zero, Quaternion.identity);
     }
 	
     void OnJoinedLobby()
@@ -94,6 +102,8 @@ public class NetworkHandler : Photon.MonoBehaviour {
     {
         CancelInvoke("RefreshGameList");
 
+        _online = true;
+
         string gameName = gameNameInput.text == "" ? "game" : gameNameInput.text;
         RoomOptions roomOptions = new RoomOptions() { maxPlayers = 4 };
         PhotonNetwork.CreateRoom(gameName, roomOptions, null);
@@ -102,6 +112,8 @@ public class NetworkHandler : Photon.MonoBehaviour {
     public void JoinGame(String gameName)
     {
         CancelInvoke("RefreshGameList");
+
+        _online = true;
 
         PhotonNetwork.JoinRoom(gameName);
     }
@@ -157,12 +169,18 @@ public class NetworkHandler : Photon.MonoBehaviour {
 
     public void SpawnPlayer()
     {
-        string startingFace = Mountain.Instance.faceTransforms[PhotonNetwork.player.ID - 1].name;
+        string startingFace = _online ? Mountain.Instance.faceTransforms[PhotonNetwork.player.ID - 1].name : "north";
 
-        GameObject playerObj = PhotonNetwork.Instantiate("player root", playerPrefab.transform.position, Quaternion.identity, 0);
-        NetworkPlayer networkPlayer = playerObj.GetComponent<NetworkPlayer>();
-        networkPlayer.ActivateThisPlayer();
-        networkPlayer.player.SetHomeFace(startingFace);
+        GameObject playerObj = null;
+
+        if (_online)
+            playerObj = PhotonNetwork.Instantiate("player root", playerPrefab.transform.position, Quaternion.identity, 0);
+        else
+            playerObj = (GameObject)Instantiate(Resources.Load("player root"), Vector3.zero, Quaternion.identity);
+
+        NetworkCharacter networkCharacter = playerObj.GetComponent<NetworkCharacter>();
+        networkCharacter.OwnThisCharacter();
+        networkCharacter.character.SetHomeFace(startingFace);
 
         Destroy(networkCanvasRoot);
     }

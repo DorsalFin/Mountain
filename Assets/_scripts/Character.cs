@@ -15,6 +15,9 @@ public class Character : Photon.MonoBehaviour {
         collect = 3
     }
 
+    public NetworkCharacter networkCharacter;
+    public GameObject characterModel;
+
     public int level = 0;
 
     public Movement movement;
@@ -29,6 +32,7 @@ public class Character : Photon.MonoBehaviour {
 
     // tile vars
     public Tile closestTile;
+    protected string homeFace;
     public string currentFace = "";
 
     // speed / rest rate
@@ -65,6 +69,12 @@ public class Character : Photon.MonoBehaviour {
             }
         }
 #endregion
+    }
+
+    public void SetHomeFace(string face)
+    {
+        currentFace = face;
+        homeFace = face;
     }
 
     public void UpdateAttackState()

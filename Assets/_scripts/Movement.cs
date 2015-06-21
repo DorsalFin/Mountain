@@ -89,8 +89,8 @@ public class Movement : MonoBehaviour {
                 }
 
                 Tile tileTarget = _pathToTargetTile[0];
-                transform.position = Vector3.MoveTowards(transform.position, tileTarget.tileTransform.position, character.speed);
-                float distanceToTargetTile = Vector3.Distance(transform.position, tileTarget.tileTransform.position);
+                character.characterModel.transform.position = Vector3.MoveTowards(character.characterModel.transform.position, tileTarget.tileTransform.position, character.speed);
+                float distanceToTargetTile = Vector3.Distance(character.characterModel.transform.position, tileTarget.tileTransform.position);
 
                 /* 
                  * FURTHEST DISTANCE 
@@ -103,8 +103,10 @@ public class Movement : MonoBehaviour {
                     {
                         Player player = character as Player;
                         if (player.closestTile != null && player.closestTile.face != "" && player.closestTile.face != tileTarget.face)
-                            Mountain.Instance.SetPlayerFaceFocus(player, tileTarget.face);
-                            //player.ChangeFaceFocus(tileTarget.face);//rotatingFaceInDirection);
+                        {
+                            player.playerCamera.ChangeFace(rotatingFaceInDirection);
+                            Mountain.Instance.SetFaceVisibility(tileTarget.face);
+                        }
                     }
 
                     // remove ourselves from the previous tiles inhabitants
@@ -159,7 +161,7 @@ public class Movement : MonoBehaviour {
         List<Vector3> pathlinePoints = new List<Vector3>();
 
         // add the character position to start our line
-        pathlinePoints.Add(transform.position);
+        pathlinePoints.Add(character.characterModel.transform.position);
 
         // populate with the appropriate path list
         // if we have an UPCOMING PATH then we draw that
@@ -250,7 +252,6 @@ public class Movement : MonoBehaviour {
     {
         int direction = arrow.name.Contains("right") ? Mountain.RIGHT : Mountain.LEFT;
         rotatingFaceInDirection = direction;
-        //playerCamera.ChangeFaceFocus(direction);
 
         Tile correspondingTile = Mountain.Instance.GetTilesNeighbour(null, character.closestTile, direction, false);
         _upcomingPathToTargetTile.Clear();

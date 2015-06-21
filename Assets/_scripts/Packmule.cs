@@ -163,6 +163,7 @@ public class Packmule : Character {
         DepositItems();
         _owner.currentPackmules.Remove(this);
         _owner.packmulesWaiting++;
+        NetworkHandler.Instance.ownedCharacters.Remove(this);
         Destroy(gameObject);
     }
 

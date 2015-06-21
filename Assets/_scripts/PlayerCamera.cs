@@ -30,6 +30,21 @@ public class PlayerCamera : MonoBehaviour {
         float degrees = face == "north" ? 0 : face == "west" ? 90 : face == "south" ? 180 : 270; 
         StartCoroutine(Rotate(playerMainCamera.transform, cameraTarget, Vector3.up, degrees, 0.10f));
     }
+
+    /// <summary>
+    ///  convenience function that calls Rotate
+    /// </summary>
+    public void ChangeFace(int direction)
+    {
+        if (direction == Mountain.LEFT)
+        {
+            StartCoroutine(Rotate(playerMainCamera.transform, cameraTarget, Vector3.up, rotateDegrees, rotateTime));
+        }
+        else
+        {
+            StartCoroutine(Rotate(playerMainCamera.transform, cameraTarget, -Vector3.up, rotateDegrees, rotateTime));
+        }
+    }
  
     IEnumerator Rotate (Transform thisTransform, Transform otherTransform, Vector3 rotateAxis, float degrees, float totalTime) 
     {
